@@ -23,11 +23,19 @@ const socketState        = require('./services/socketState');
 const app        = express();
 const httpServer = http.createServer(app);
 
+const rawClientUrl = process.env.CLIENT_URL;
+const cleanedClientUrl = rawClientUrl ? rawClientUrl.replace(/\/$/, '') : null;
+
 const ALLOWED_ORIGINS = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
   'http://localhost:5173',
   'http://localhost:5174',
+  'https://servicehub0-2-frontend.onrender.com',
 ];
+
+if (cleanedClientUrl) {
+  ALLOWED_ORIGINS.push(cleanedClientUrl);
+  ALLOWED_ORIGINS.push(cleanedClientUrl + '/');
+}
 
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 const io = new Server(httpServer, {
