@@ -140,36 +140,6 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/schedule',      scheduleRoutes);
 app.use('/api/currency',      currencyRoutes);
 
-// ─── Debug DB ─────────────────────────────────────────────────────────────────
-app.get('/api/debug-db', async (req, res) => {
-  try {
-    const db = require('./config/db');
-    const tablesRes = await db.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
-    const tables = tablesRes.rows.map(r => r.table_name);
-    
-    const counts = {};
-    for (const t of tables) {
-      try {
-        const cRes = await db.query(`SELECT COUNT(*) FROM "${t}"`);
-        counts[t] = parseInt(cRes.rows[0].count, 10);
-      } catch (e) {
-        counts[t] = `Error: ${e.message}`;
-      }
-    }
-    
-    res.json({
-      success: true,
-      db_url_configured: !!process.env.DATABASE_URL,
-      tables,
-      counts
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message
-    });
-  }
-});
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
