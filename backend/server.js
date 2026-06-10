@@ -192,9 +192,18 @@ app.use((err, req, res, next) => {
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
-  console.log(`\n🚀 ServiceHub API running on http://localhost:${PORT}`);
-  console.log(`⚡ Socket.io enabled for real-time chat`);
-  console.log(`📁 Uploads served from /uploads`);
-  console.log(`🗄️  Database: ${process.env.DATABASE_URL?.replace(/:.*@/, ':****@')}\n`);
-});
+const { initDb } = require('./db-init');
+
+initDb()
+  .then(() => {
+    httpServer.listen(PORT, () => {
+      console.log(`\n🚀 ServiceHub API running on http://localhost:${PORT}`);
+      console.log(`⚡ Socket.io enabled for real-time chat`);
+      console.log(`📁 Uploads served from /uploads`);
+      console.log(`🗄️  Database: ${process.env.DATABASE_URL?.replace(/:.*@/, ':****@')}\n`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Database initialization failed. Server NOT started:', err.message);
+    process.exit(1);
+  });

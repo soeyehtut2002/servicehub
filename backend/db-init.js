@@ -244,11 +244,10 @@ const serviceTemplates = [
 async function initDb() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error("❌ DATABASE_URL is not set!");
-    process.exit(1);
+    throw new Error("DATABASE_URL is not set in environment variables!");
   }
 
-  console.log(`Connecting to: ${connectionString.replace(/:.*@/, ':****@')}`);
+  console.log(`[DB-INIT] Connecting to database...`);
   const client = new Client({ connectionString });
   await client.connect();
 
@@ -265,26 +264,26 @@ async function initDb() {
     const usersExist = resCheck.rows[0].exists;
 
     if (!usersExist) {
-      console.log('🔄 Base tables do not exist. Executing schema.sql...');
+      console.log('[DB-INIT] Base tables do not exist. Executing schema.sql...');
       const schemaPath = path.join(__dirname, 'db', 'schema.sql');
       const schemaSql = fs.readFileSync(schemaPath, 'utf8');
       await client.query(schemaSql);
-      console.log('✅ Base tables and admin account created successfully!');
+      console.log('[DB-INIT] Base tables and admin account created successfully!');
     } else {
-      console.log('ℹ️ Base tables already exist.');
+      console.log('[DB-INIT] Base tables already exist.');
     }
 
     // 2. Run migrations
-    console.log('🔄 Running migrations...');
+    console.log('[DB-INIT] Running migrations...');
     await client.query(SQL_MIGRATIONS);
-    console.log('✅ Migrations applied successfully!');
+    console.log('[DB-INIT] Migrations applied successfully!');
 
     // 3. Seed data if services table is empty
     const resCount = await client.query('SELECT COUNT(*) FROM services');
     const serviceCount = parseInt(resCount.rows[0].count, 10);
 
     if (serviceCount === 0) {
-      console.log('🔄 Seeding database with default providers and services...');
+      console.log('[DB-INIT] Seeding database with default providers and services...');
       const password = 'password123';
       const hash = await bcrypt.hash(password, 10);
 
@@ -324,19 +323,30 @@ async function initDb() {
         );
         console.log(`  ✅ Service: ${s.title}`);
       }
-      console.log('✅ Seeding complete!');
+      console.log('[DB-INIT] Seeding complete!');
     } else {
-      console.log('ℹ️ Database already seeded.');
+      console.log('[DB-INIT] Database already seeded.');
     }
 
-    console.log('\n🎉 Database initialization finished successfully!\n');
-    process.exit(0);
+    console.log('[DB-INIT] Database initialization finished successfully!\n');
   } catch (error) {
-    console.error('❌ Database initialization failed:', error.message);
-    process.exit(1);
+    console.error('[DB-INIT] Database initialization failed:', error.message);
+    throw error;
   } finally {
     await client.end();
   }
 }
 
-initDb();
+if (require.main === module) {
+  initDb()
+    .then(() => {
+      console.log('✅ Standalone database initialization successful.');
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('❌ Standalone database initialization failed:', err);
+      process.exit(1);
+    });
+}
+
+module.exports = { initDb };
