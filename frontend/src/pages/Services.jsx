@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import API from '../api/axios';
 import ServiceCard from '../components/ServiceCard';
-import { Search } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 
-const CATEGORIES = ['Cleaning','Plumbing','Electrical','Gardening','Painting','Moving','Tutoring','Photography','Other'];
+const CATEGORIES = ['Cleaning','Plumbing','Electrical','Gardening','Painting','Moving','Tutoring','Photography','Repairing','Installing','Tech','Website','Customer Service','Page Admin','Parttime','Fulltime Job','Other'];
 
 const Services = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     keyword: searchParams.get('keyword') || '',
     category: searchParams.get('category') || '',
@@ -41,6 +42,7 @@ const Services = () => {
     fetchServices(filters);
     const params = Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== ''));
     setSearchParams(params);
+    setShowFilters(false);
   };
 
   const handleCategoryClick = (cat) => {
@@ -54,7 +56,10 @@ const Services = () => {
     setFilters(empty);
     fetchServices(empty);
     setSearchParams({});
+    setShowFilters(false);
   };
+
+  const hasActiveFilters = filters.category || filters.min_price || filters.max_price || filters.min_rating;
 
   return (
     <div className="page-wrapper">
@@ -63,19 +68,31 @@ const Services = () => {
           <h1 className="h2">Find Services</h1>
           <p className="text-muted mt-2">{total} services available</p>
           <form className="services-search-bar" onSubmit={handleSearch}>
-            <input className="input" placeholder="Search by name or description..." value={filters.keyword} onChange={(e) => setFilters({ ...filters, keyword: e.target.value })} />
-            <input className="input" placeholder="Location" value={filters.location} onChange={(e) => setFilters({ ...filters, location: e.target.value })} />
-            <button type="submit" className="btn btn-primary">Search</button>
+            <input className="input svc-kw-input" placeholder="Search services..." value={filters.keyword} onChange={(e) => setFilters({ ...filters, keyword: e.target.value })} />
+            <input className="input svc-loc-input" placeholder="Location" value={filters.location} onChange={(e) => setFilters({ ...filters, location: e.target.value })} />
+            <button type="submit" className="btn btn-primary">
+              <Search size={15} strokeWidth={2} />
+              <span>Search</span>
+            </button>
             <button type="button" className="btn btn-ghost" onClick={handleClear}>Clear</button>
+            <button type="button" className={`btn svc-filter-toggle ${hasActiveFilters ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowFilters(o => !o)}>
+              <SlidersHorizontal size={15} strokeWidth={2} />
+              Filters{hasActiveFilters ? ' ●' : ''}
+            </button>
           </form>
         </div>
       </div>
 
       <div className="container services-layout">
         {/* Sidebar Filters */}
-        <aside className="services-sidebar">
+        <aside className={`services-sidebar ${showFilters ? 'sidebar-open' : ''}`}>
           <div className="filter-panel">
-            <h3 className="filter-title">Filters</h3>
+            <div className="filter-panel-header">
+              <h3 className="filter-title">Filters</h3>
+              <button className="filter-close-btn" onClick={() => setShowFilters(false)}>
+                <X size={18} strokeWidth={2} />
+              </button>
+            </div>
             <div className="filter-section">
               <p className="filter-label">Category</p>
               <div className="filter-categories">
@@ -101,9 +118,14 @@ const Services = () => {
                 {[1,2,3,4].map(n => <option key={n} value={n}>{n}+ stars</option>)}
               </select>
             </div>
-            <button className="btn btn-primary w-full" onClick={() => fetchServices()}>Apply Filters</button>
+            <button className="btn btn-primary w-full" onClick={() => { fetchServices(); setShowFilters(false); }}>Apply Filters</button>
+            {hasActiveFilters && (
+              <button className="btn btn-ghost w-full" onClick={handleClear}>Clear All</button>
+            )}
           </div>
         </aside>
+
+        {showFilters && <div className="filter-overlay" onClick={() => setShowFilters(false)} />}
 
         {/* Results */}
         <main className="services-main">
@@ -126,20 +148,64 @@ const Services = () => {
 
       <style>{`
         .services-hero { background:linear-gradient(135deg,var(--bg-surface) 0%,var(--bg-card) 100%); border-bottom:1px solid var(--border); padding:var(--space-8) 0; }
-        .services-search-bar { display:flex; gap:var(--space-3); margin-top:var(--space-5); flex-wrap:wrap; }
-        .services-search-bar .input { flex:1; min-width:160px; }
-        .services-layout { display:grid; grid-template-columns:260px 1fr; gap:var(--space-8); padding-top:var(--space-8); padding-bottom:var(--space-16); align-items:start; }
+        .services-search-bar { display:flex; gap:var(--space-2); margin-top:var(--space-5); flex-wrap:wrap; align-items:center; }
+        .svc-kw-input { flex:1; min-width:150px; }
+        .svc-loc-input { width:160px; flex-shrink:0; }
+        .services-layout { display:grid; grid-template-columns:260px 1fr; gap:var(--space-6); padding-top:var(--space-8); padding-bottom:var(--space-16); align-items:start; position:relative; }
         .services-sidebar { position:sticky; top:88px; }
         .filter-panel { background:var(--gradient-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-6); display:flex; flex-direction:column; gap:var(--space-5); }
-        .filter-title { font-size:1.1rem; font-weight:700; }
+        .filter-panel-header { display:flex; align-items:center; justify-content:space-between; }
+        .filter-title { font-size:1.1rem; font-weight:700; margin:0; }
+        .filter-close-btn { display:none; background:none; border:none; cursor:pointer; color:var(--text-muted); padding:6px; border-radius:var(--radius-sm); }
+        .filter-close-btn:hover { color:var(--danger); background:rgba(239,68,68,0.08); }
         .filter-section { display:flex; flex-direction:column; gap:var(--space-2); }
         .filter-label { font-size:.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; }
         .filter-categories { display:flex; flex-wrap:wrap; gap:var(--space-2); }
         .filter-cat-btn { padding:5px 12px; border-radius:var(--radius-full); font-size:.78rem; font-weight:600; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text-secondary); cursor:pointer; transition:var(--transition); }
-        .filter-cat-btn.active, .filter-cat-btn:hover { background:rgba(108,99,255,.2); border-color:var(--primary); color:var(--primary-light); }
+        .filter-cat-btn.active, .filter-cat-btn:hover { background:rgba(14,165,233,.15); border-color:var(--primary); color:var(--primary-dark); }
         .price-range { display:flex; align-items:center; gap:var(--space-2); }
-        .price-sep { color:var(--text-muted); font-weight:700; }
-        @media(max-width:900px){ .services-layout{grid-template-columns:1fr;} .services-sidebar{position:static;} }
+        .price-sep { color:var(--text-muted); font-weight:700; flex-shrink:0; }
+        .svc-filter-toggle { display:none; white-space:nowrap; }
+        .filter-overlay { display:none; }
+
+        @media(max-width:900px) {
+          .services-layout { grid-template-columns:1fr; }
+          .svc-filter-toggle { display:inline-flex; }
+          .svc-loc-input { display:none; }
+          .filter-close-btn { display:flex; }
+          .services-sidebar {
+            position:fixed; top:0; left:0; bottom:0; width:min(300px,85vw);
+            z-index:600; transform:translateX(-110%);
+            transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);
+            overflow-y:auto; -webkit-overflow-scrolling:touch;
+            background:var(--bg-card);
+          }
+          .services-sidebar.sidebar-open { transform:translateX(0); box-shadow:var(--shadow-lg); }
+          .filter-overlay { display:block; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:599; animation:fadeIn 0.2s ease; }
+          .filter-panel { border-radius:0; min-height:100%; padding-top:var(--space-10); border:none; }
+        }
+        @media(max-width:600px) {
+          .services-search-bar {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 0.8fr;
+            gap: var(--space-2);
+            width: 100%;
+          }
+          .svc-kw-input {
+            grid-column: 1 / span 3;
+            width: 100%;
+          }
+          .services-search-bar .btn {
+            width: 100%;
+            justify-content: center;
+            font-size: 0.85rem;
+            padding: 10px;
+          }
+        }
+        @media(max-width:480px) {
+          .services-hero { padding:var(--space-5) 0; }
+          .svc-kw-input { min-width:0; }
+        }
       `}</style>
     </div>
   );

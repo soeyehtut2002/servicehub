@@ -480,12 +480,12 @@ const ServiceDetail = () => {
       {showBooking && <BookingModal service={service} onClose={() => setShowBooking(false)} onBooked={() => navigate('/dashboard/customer')} />}
 
       <style>{`
-        .detail-hero { position:relative; height:360px; overflow:hidden; margin-bottom:0; }
+        .detail-hero { position:relative; height:300px; overflow:hidden; margin-bottom:0; }
         .detail-hero-img { width:100%; height:100%; object-fit:cover; }
         .detail-hero-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,20,.9) 0%,rgba(10,10,20,.3) 100%); }
-        .detail-hero-content { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:100%; padding-bottom:var(--space-8); display:flex; flex-direction:column; gap:var(--space-3); }
-        .detail-title { font-size:clamp(1.5rem,3vw,2.5rem); font-weight:900; text-shadow:0 2px 8px rgba(0,0,0,.5); }
-        .detail-meta { display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; font-size:.875rem; color:var(--text-secondary); }
+        .detail-hero-content { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:100%; padding-bottom:var(--space-6); display:flex; flex-direction:column; gap:var(--space-2); }
+        .detail-title { font-size:clamp(1.3rem,3vw,2.5rem); font-weight:900; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+        .detail-meta { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; font-size:.875rem; color:var(--text-secondary); }
         .detail-rating-val { font-weight:700; color:var(--text-primary); }
         .detail-reviews { color:var(--text-muted); }
         .detail-sep { color:var(--text-muted); }
@@ -496,7 +496,6 @@ const ServiceDetail = () => {
         .booking-cur-code { font-size:.55em; font-weight:600; color:var(--text-muted); }
         .booking-converted { font-size:.88rem; color:var(--text-secondary); background:rgba(14,165,233,.07); border:1px solid rgba(14,165,233,.15); border-radius:var(--radius-md); padding:6px 10px; margin-top:-8px; }
         .booking-per { font-size:.9rem; font-weight:400; color:var(--text-muted); }
-        /* ── Inline Currency Switcher ─────────────────────────────────────── */
         .sd-cur-row { display:flex; flex-direction:column; gap:6px; }
         .sd-cur-label { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); }
         .sd-cur-pills { display:flex; gap:6px; flex-wrap:wrap; }
@@ -523,7 +522,33 @@ const ServiceDetail = () => {
         .review-images { display:flex; flex-wrap:wrap; gap:var(--space-2); margin-top:var(--space-3); }
         .review-img-thumb-view { width:72px; height:72px; object-fit:cover; border-radius:var(--radius-md); border:1px solid var(--border); cursor:pointer; transition:var(--transition); }
         .review-img-thumb-view:hover { transform:scale(1.05); border-color:var(--primary); }
-        @media(max-width:900px){ .detail-layout{grid-template-columns:1fr;} .booking-card{position:static;} }
+        @media(max-width:900px){
+          .detail-layout{grid-template-columns:1fr;}
+          .booking-card{position:static;}
+          .detail-sidebar { order: -1; }
+        }
+        @media(max-width:600px){
+          .detail-hero { height: 220px; }
+          .detail-hero-content { padding-bottom: var(--space-4); }
+          .detail-title { font-size: clamp(1.1rem, 5vw, 1.8rem); }
+          .detail-meta { gap: var(--space-1); font-size: 0.78rem; }
+          .booking-card { padding: var(--space-4); }
+          .booking-price { font-size: 1.5rem; }
+          .sd-cur-pills {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 6px;
+            width: 100%;
+          }
+          .sd-cur-pill {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+            padding: 5px 8px;
+            font-size: 0.72rem;
+          }
+          .review-card { padding: var(--space-4); }
+        }
       `}</style>
     </div>
   );

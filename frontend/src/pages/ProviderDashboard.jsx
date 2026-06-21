@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { useCurrency } from '../context/CurrencyContext';
 import { SUPPORTED_CURRENCIES, getCurrencyMeta, convertAmount, formatCurrency } from '../utils/currency';
 
-const CATEGORIES = ['Cleaning','Plumbing','Electrical','Gardening','Painting','Moving','Tutoring','Photography','Other'];
+const CATEGORIES = ['Cleaning','Plumbing','Electrical','Gardening','Painting','Moving','Tutoring','Photography','Repairing','Installing','Tech','Website','Customer Service','Page Admin','Parttime','Fulltime Job','Other'];
 
 const AVAILABILITY_OPTIONS = [
   { value: 'available',    icon: '🟢', label: 'Available',          desc: 'Open for new bookings' },
@@ -148,7 +148,7 @@ const ProviderDashboard = () => {
                 <tbody>
                   {bookings.map(b => (
                     <tr key={b.id}>
-                      <td>
+                      <td data-label="Customer">
                         <Link
                           to={`/profile/${b.customer_id}`}
                           style={{fontWeight:700,color:'var(--primary)',textDecoration:'none',display:'block'}}
@@ -159,13 +159,13 @@ const ProviderDashboard = () => {
                         <div style={{fontSize:'.75rem',color:'var(--text-muted)'}}>{b.customer_email}</div>
                         {b.customer_phone && <div style={{fontSize:'.75rem',color:'var(--text-muted)'}}>📞 {b.customer_phone}</div>}
                       </td>
-                      <td>
+                      <td data-label="Service">
                         <div style={{fontWeight:600}}>{b.service_title}</div>
                         <div style={{fontSize:'.75rem',color:'var(--success)',fontWeight:700}}>
                           {getCurrencyMeta(b.currency||'USD').symbol}{parseFloat(b.price).toFixed(2)} {b.currency||'USD'}
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Date / Slot">
                         {b.slot_date ? (
                           <div>
                             <div style={{fontWeight:600}}>{new Date(b.slot_date+'T00:00:00').toLocaleDateString()}</div>
@@ -173,7 +173,7 @@ const ProviderDashboard = () => {
                           </div>
                         ) : new Date(b.booking_date).toLocaleString()}
                       </td>
-                      <td>
+                      <td data-label="Payment">
                         {b.converted_price && b.payment_currency ? (
                           <div>
                             <div style={{fontWeight:700,color:'var(--primary)',fontSize:'.88rem'}}>
@@ -183,9 +183,9 @@ const ProviderDashboard = () => {
                           </div>
                         ) : <span style={{color:'var(--text-muted)'}}>—</span>}
                       </td>
-                      <td><span style={{fontSize:'.82rem',color:'var(--text-secondary)'}}>{b.notes || '—'}</span></td>
-                      <td><StatusBadge status={b.status}/></td>
-                      <td>
+                      <td data-label="Notes"><span style={{fontSize:'.82rem',color:'var(--text-secondary)'}}>{b.notes || '—'}</span></td>
+                      <td data-label="Status"><StatusBadge status={b.status}/></td>
+                      <td data-label="Actions">
                         <div style={{display:'flex',gap:'var(--space-2)',flexWrap:'wrap'}}>
                           {b.status === 'pending' && (
                             <>
@@ -420,7 +420,7 @@ const ServiceFormModal = ({ service, onClose, onSaved }) => {
             <label className="form-label">Description</label>
             <textarea name="description" className="textarea" placeholder="Describe your service in detail..." value={form.description} onChange={handleChange} required rows={4} />
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'var(--space-4)'}}>
+          <div className="sfm-grid-3">
             <div className="form-group">
               <label className="form-label">Category</label>
               <select name="category" className="select" value={form.category} onChange={handleChange} required>
@@ -461,7 +461,7 @@ const ServiceFormModal = ({ service, onClose, onSaved }) => {
             <span style={{fontWeight:700,color:'var(--text-primary)'}}>Capacity Settings</span>
             <span style={{fontSize:'.78rem',color:'var(--text-muted)'}}>Controls booking availability</span>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'var(--space-4)'}}>
+          <div className="sfm-grid-2">
             <div className="form-group">
               <label className="form-label">⏱️ Service Duration</label>
               <select name="duration_hours" className="select" value={form.duration_hours} onChange={handleChange}>
@@ -529,6 +529,100 @@ const ServiceFormModal = ({ service, onClose, onSaved }) => {
         .form-hint { font-size:.72rem; color:var(--text-muted); margin-top:4px; display:block; }
         .sfm-conv-preview { display:flex; flex-wrap:wrap; gap:var(--space-2); padding:var(--space-2) 0; }
         .sfm-conv-chip { font-size:.78rem; font-weight:600; padding:4px 10px; background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(14,165,233,.08)); border:1px solid rgba(108,99,255,.2); border-radius:var(--radius-full); color:var(--text-secondary); white-space:nowrap; }
+
+        /* Multi-Image Upload Styles */
+        .miu-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+          gap: var(--space-3);
+          margin-top: var(--space-2);
+        }
+        .miu-cell {
+          position: relative;
+          aspect-ratio: 1;
+          border-radius: var(--radius-md);
+          overflow: hidden;
+          border: 1.5px solid var(--border);
+          background: var(--bg-surface);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .miu-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .miu-remove {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: rgba(239, 68, 68, 0.9);
+          border: none;
+          color: #fff;
+          font-size: 0.7rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: var(--transition);
+        }
+        .miu-remove:hover {
+          background: #ef4444;
+          transform: scale(1.1);
+        }
+        .miu-new-badge {
+          position: absolute;
+          bottom: 4px;
+          left: 4px;
+          background: var(--success);
+          color: #fff;
+          font-size: 0.6rem;
+          font-weight: 700;
+          padding: 1px 4px;
+          border-radius: var(--radius-sm);
+        }
+        .miu-add {
+          border: 2px dashed var(--border);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 2px;
+          cursor: pointer;
+          transition: var(--transition);
+          background: transparent;
+        }
+        .miu-add:hover {
+          border-color: var(--primary);
+          background: var(--primary-glow);
+          color: var(--primary);
+        }
+
+        /* Form Grid Layouts */
+        .sfm-grid-3 {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--space-4);
+        }
+        .sfm-grid-2 {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: var(--space-4);
+        }
+        @media (max-width: 576px) {
+          .sfm-grid-3 {
+            grid-template-columns: 1fr;
+            gap: var(--space-3);
+          }
+          .sfm-grid-2 {
+            grid-template-columns: 1fr;
+            gap: var(--space-3);
+          }
+        }
       `}</style>
     </div>
   );

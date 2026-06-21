@@ -476,13 +476,24 @@ const ChatPage = () => {
         .hide-lg { display:none; }
         @media(max-width:768px){
           .hide-lg { display:flex; }
+          .chat-page { margin-top: 64px; height: calc(100vh - 64px); }
           .chat-sidebar {
-            position:absolute; left:0; top:72px; bottom:0; z-index:100;
+            position:fixed; left:0; top:64px; bottom:0; z-index:200;
             transform:translateX(-100%); box-shadow:var(--shadow-lg);
+            width: min(320px, 85vw);
           }
           .chat-sidebar.open { transform:translateX(0); }
           .chat-sidebar.collapsed { transform:translateX(-100%); }
           .msg-bubble-wrap { max-width:85%; }
+          .chat-header-action { display: none; }
+          .sidebar-open-btn { margin-top: var(--space-2); }
+        }
+        @media(max-width:480px){
+          .msg-bubble { font-size: 0.85rem; padding: 8px 12px; }
+          .chat-messages-area { padding: var(--space-3); }
+          .chat-input-area { padding: var(--space-3); gap: var(--space-2); }
+          .chat-input { font-size: 0.85rem; padding: 8px 14px; }
+          .chat-send-btn { width: 40px; height: 40px; }
         }
       `}</style>
     </div>

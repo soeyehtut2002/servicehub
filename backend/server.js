@@ -58,36 +58,47 @@ io.use((socket, next) => {
   }
 });
 
-// Track online users: userId -> socketId
+// Track online users: userId (Number) -> Set of socket.id (Strings)
 const onlineUsers = new Map();
 
 io.on('connection', (socket) => {
-  const userId = socket.user.id;
-  onlineUsers.set(userId, socket.id);
-  console.log(`🟢 User ${userId} connected (socket: ${socket.id})`);
+  const userId = parseInt(socket.user?.id);
+  if (isNaN(userId)) {
+    console.error(`❌ Connection rejected: user ID is invalid/NaN`);
+    return socket.disconnect();
+  }
+
+  // Join user-specific room for broadcasting to all of this user's tabs/connections
+  socket.join(`user_${userId}`);
+
+  // Track socket ID under the user's online sockets Set
+  if (!onlineUsers.has(userId)) {
+    onlineUsers.set(userId, new Set());
+  }
+  onlineUsers.get(userId).add(socket.id);
+  console.log(`🟢 User ${userId} connected (socket: ${socket.id}). Active sockets: ${onlineUsers.get(userId).size}`);
 
   // Broadcast updated online list
   io.emit('online_users', Array.from(onlineUsers.keys()));
 
   // Send a private message
   socket.on('send_message', async ({ receiver_id, content }) => {
-    if (!receiver_id || !content?.trim()) return;
+    const targetReceiverId = parseInt(receiver_id);
+    if (isNaN(targetReceiverId) || !content?.trim()) return;
     try {
       const db = require('./config/db');
       const result = await db.query(
         `INSERT INTO messages (sender_id, receiver_id, content)
          VALUES ($1, $2, $3) RETURNING *`,
-        [userId, receiver_id, content.trim()]
+        [userId, targetReceiverId, content.trim()]
       );
       const msg = result.rows[0];
 
-      // Send to receiver if online
-      const receiverSocketId = onlineUsers.get(receiver_id);
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('receive_message', msg);
-      }
-      // Echo back to sender with DB-assigned id/timestamp
-      socket.emit('message_sent', msg);
+      // Send to receiver's room (delivers to all of their active connections/tabs)
+      io.to(`user_${targetReceiverId}`).emit('receive_message', msg);
+      
+      // Echo back to all of sender's active connections/tabs (sync across tabs)
+      io.to(`user_${userId}`).emit('message_sent', msg);
     } catch (err) {
       console.error('Socket send_message error:', err.message);
     }
@@ -95,22 +106,34 @@ io.on('connection', (socket) => {
 
   // Mark messages as read
   socket.on('mark_read', async ({ sender_id }) => {
+    const targetSenderId = parseInt(sender_id);
+    if (isNaN(targetSenderId)) return;
     try {
       const db = require('./config/db');
       await db.query(
         `UPDATE messages SET is_read = TRUE
          WHERE sender_id = $1 AND receiver_id = $2 AND is_read = FALSE`,
-        [sender_id, userId]
+        [targetSenderId, userId]
       );
+      // Notify all of this user's connections that messages from targetSenderId are read
+      io.to(`user_${userId}`).emit('messages_marked_read', { sender_id: targetSenderId });
     } catch (err) {
       console.error('Socket mark_read error:', err.message);
     }
   });
 
   socket.on('disconnect', () => {
-    onlineUsers.delete(userId);
+    const userSockets = onlineUsers.get(userId);
+    if (userSockets) {
+      userSockets.delete(socket.id);
+      if (userSockets.size === 0) {
+        onlineUsers.delete(userId);
+      }
+      console.log(`🔴 User ${userId} disconnected (socket: ${socket.id}). Remaining sockets: ${userSockets.size}`);
+    } else {
+      console.log(`🔴 User ${userId} disconnected (socket: ${socket.id}). No socket set found.`);
+    }
     io.emit('online_users', Array.from(onlineUsers.keys()));
-    console.log(`🔴 User ${userId} disconnected`);
   });
 });
 

@@ -158,29 +158,39 @@ const forgotPassword = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    const result = await db.query('SELECT id, name FROM users WHERE email = $1', [email]);
+    const result = await db.query('SELECT id, name FROM users WHERE LOWER(email) = LOWER($1)', [email.trim()]);
     // Always respond success (don't reveal if email exists)
     if (result.rows.length === 0) {
-      return res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+      return res.status(200).json({ message: 'If that email exists, an OTP code has been generated.' });
     }
 
     const user    = result.rows[0];
-    const token   = crypto.randomBytes(32).toString('hex');
+    const otp     = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     await db.query(
       'UPDATE users SET password_reset_token = $1, password_reset_expires = $2 WHERE id = $3',
-      [token, expires, user.id]
+      [otp, expires, user.id]
     );
 
-    // ⚠️  MOCK: Log reset link to console instead of sending email
-    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
-    console.log('\n🔑 PASSWORD RESET LINK (mock — no email sent):');
-    console.log(`   User: ${user.name} <${email}>`);
-    console.log(`   Link: ${resetUrl}`);
-    console.log('   Expires in 15 minutes\n');
+    // Send the email using the email service
+    const emailService = require('../services/emailService');
+    await emailService.sendPasswordResetOtp({
+      to: email.trim().toLowerCase(),
+      userName: user.name,
+      otp
+    });
 
-    res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+    // Also keep the backend console logging for verification & development ease
+    console.log('\n┌────────────────────────────────────────────────────────┐');
+    console.log('│  🔑 PASSWORD RESET OTP (logged for verification):     │');
+    console.log(`│  User: ${user.name.padEnd(46)} │`);
+    console.log(`│  Email: ${email.trim().toLowerCase().padEnd(45)} │`);
+    console.log(`│  OTP Code: ${otp.padEnd(43)} │`);
+    console.log('│  Expires in 15 minutes                                 │');
+    console.log('└────────────────────────────────────────────────────────┘\n');
+
+    res.status(200).json({ message: 'If that email exists, an OTP code has been generated.' });
   } catch (error) {
     console.error('forgotPassword error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -190,18 +200,23 @@ const forgotPassword = async (req, res) => {
 // ── @route  POST /api/auth/reset-password ────────────────────────────────────
 const resetPassword = async (req, res) => {
   try {
-    const { token, password } = req.body;
-    if (!token || !password) return res.status(400).json({ error: 'Token and new password are required' });
-    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    const { email, otp, password } = req.body;
+    if (!email || !otp || !password) {
+      return res.status(400).json({ error: 'Email, OTP code, and new password are required' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
 
     const result = await db.query(
       `SELECT id FROM users
-       WHERE password_reset_token = $1
+       WHERE LOWER(email) = LOWER($1)
+         AND password_reset_token = $2
          AND password_reset_expires > CURRENT_TIMESTAMP`,
-      [token]
+      [email.trim(), otp.trim()]
     );
     if (result.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid or expired reset token' });
+      return res.status(400).json({ error: 'Invalid or expired OTP code' });
     }
 
     const salt          = await bcrypt.genSalt(10);

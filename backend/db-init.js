@@ -68,7 +68,8 @@ END $$;
 
 -- account_type on users
 ALTER TABLE users
-  ADD COLUMN IF NOT EXISTS account_type VARCHAR(20) DEFAULT 'freelancer';
+  ADD COLUMN IF NOT EXISTS account_type VARCHAR(20) DEFAULT 'freelancer',
+  ADD COLUMN IF NOT EXISTS gallery_urls TEXT[] DEFAULT '{}';
 
 -- Backfill NULLs before applying constraint
 UPDATE users SET account_type = 'freelancer' WHERE account_type IS NULL OR account_type NOT IN ('freelancer','business');

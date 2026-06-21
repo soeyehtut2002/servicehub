@@ -31,9 +31,9 @@ async function notify({ userId, type, title, message, data = null, emailFn = nul
     const io          = socketState.getIo();
     const onlineUsers = socketState.getOnlineUsers();
     if (io && onlineUsers) {
-      const socketId = onlineUsers.get(parseInt(userId));
-      if (socketId) {
-        io.to(socketId).emit('new_notification', notification);
+      const targetUserId = parseInt(userId);
+      if (!isNaN(targetUserId) && onlineUsers.has(targetUserId)) {
+        io.to(`user_${targetUserId}`).emit('new_notification', notification);
       }
     }
 

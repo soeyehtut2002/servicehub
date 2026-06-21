@@ -19,30 +19,35 @@ const getUnreadCount = async (req, res) => {
 const getMyConversations = async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT DISTINCT ON (partner_id)
-         partner_id,
-         partner_name,
-         partner_role,
-         partner_avatar,
-         last_message,
-         last_time,
-         unread
-       FROM (
+      `WITH partner_last_messages AS (
+         SELECT DISTINCT ON (partner_id)
+           CASE WHEN m.sender_id = $1 THEN m.receiver_id ELSE m.sender_id END AS partner_id,
+           m.content AS last_message,
+           m.created_at AS last_time
+         FROM messages m
+         WHERE m.sender_id = $1 OR m.receiver_id = $1
+         ORDER BY partner_id, m.created_at DESC
+       ),
+       partner_unread AS (
          SELECT
            CASE WHEN m.sender_id = $1 THEN m.receiver_id ELSE m.sender_id END AS partner_id,
-           u.name  AS partner_name,
-           u.role  AS partner_role,
-           u.avatar_url AS partner_avatar,
-           m.content AS last_message,
-           m.created_at AS last_time,
-           COUNT(*) FILTER (WHERE m.receiver_id = $1 AND m.is_read = FALSE) AS unread
+           COUNT(*) AS unread
          FROM messages m
-         JOIN users u ON u.id = CASE WHEN m.sender_id = $1 THEN m.receiver_id ELSE m.sender_id END
-         WHERE m.sender_id = $1 OR m.receiver_id = $1
-         GROUP BY partner_id, u.name, u.role, u.avatar_url, m.content, m.created_at
-         ORDER BY m.created_at DESC
-       ) sub
-       ORDER BY partner_id, last_time DESC`,
+         WHERE m.receiver_id = $1 AND m.is_read = FALSE
+         GROUP BY partner_id
+       )
+       SELECT
+         lm.partner_id,
+         u.name AS partner_name,
+         u.role AS partner_role,
+         u.avatar_url AS partner_avatar,
+         lm.last_message,
+         lm.last_time,
+         COALESCE(un.unread, 0) AS unread
+       FROM partner_last_messages lm
+       JOIN users u ON u.id = lm.partner_id
+       LEFT JOIN partner_unread un ON un.partner_id = lm.partner_id
+       ORDER BY lm.last_time DESC`,
       [req.user.id]
     );
     res.json(result.rows);

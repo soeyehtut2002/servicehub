@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import ServiceCard from '../components/ServiceCard';
 import { useLang } from '../context/LangContext';
-import { Sparkles, Wrench, Zap, Leaf, Paintbrush, Package, BookOpen, Camera, Search, Star, CalendarCheck, ShieldCheck, Clock, Award } from 'lucide-react';
+import { Sparkles, Wrench, Zap, Leaf, Paintbrush, Package, BookOpen, Camera, Search, Star, CalendarCheck, ShieldCheck, Clock, Award, Hammer, Cpu, Globe, Headphones, Shield, Briefcase } from 'lucide-react';
 
 const CATEGORIES = [
   { name: 'Cleaning',    Icon: Sparkles,   color: '#0EA5E9' },
@@ -14,6 +14,14 @@ const CATEGORIES = [
   { name: 'Moving',      Icon: Package,    color: '#8B5CF6' },
   { name: 'Tutoring',    Icon: BookOpen,   color: '#14B8A6' },
   { name: 'Photography', Icon: Camera,     color: '#F97316' },
+  { name: 'Repairing',   Icon: Hammer,     color: '#EF4444' },
+  { name: 'Installing',  Icon: Wrench,     color: '#10B981' },
+  { name: 'Tech',        Icon: Cpu,        color: '#06B6D4' },
+  { name: 'Website',     Icon: Globe,      color: '#3B82F6' },
+  { name: 'Customer Service', Icon: Headphones, color: '#8B5CF6' },
+  { name: 'Page Admin',  Icon: Shield,     color: '#EC4899' },
+  { name: 'Parttime',    Icon: Clock,      color: '#F59E0B' },
+  { name: 'Fulltime Job',Icon: Briefcase,  color: '#10B981' },
 ];
 
 const Home = () => {
@@ -66,7 +74,7 @@ const Home = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="hero-search-input"
               />
-              <button type="submit" className="btn btn-primary btn-lg hero-search-btn">
+              <button type="submit" className="btn btn-primary hero-search-btn">
                 {t('hero_btn')}
               </button>
             </div>
@@ -341,7 +349,7 @@ const Home = () => {
         .section-subtitle { margin-top: var(--space-2); margin-bottom: var(--space-6); }
         .categories-grid {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
+          grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
           gap: var(--space-3);
           margin-top: var(--space-6);
         }
@@ -439,14 +447,60 @@ const Home = () => {
 
         /* ── Responsive ── */
         @media (min-width: 480px) {
-          .categories-grid { grid-template-columns: repeat(4, 1fr); }
-          .cta-buttons { flex-direction: row; max-width: none; }
+          .cta-buttons { flex-direction: row; max-width: none; justify-content: center; }
           .cta-btn-primary, .cta-btn-ghost { width: auto; }
         }
         @media (min-width: 768px) {
           .hero { padding-top: 72px; }
           .hero-search { padding: 0; }
           .how-grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+        }
+        @media (max-width: 479px) {
+          .hero-title { font-size: clamp(1.7rem, 8vw, 2.5rem); }
+          .hero-content { gap: var(--space-4); padding: var(--space-10) 0; }
+          .hero-search { padding: 0 var(--space-2); }
+          .hero-search-inner {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            padding: var(--space-3);
+            gap: var(--space-2);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(16px);
+          }
+          .hero-search-icon {
+            grid-column: 1;
+            grid-row: 1;
+            align-self: center;
+            margin-right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .hero-search-input {
+            grid-column: 2;
+            grid-row: 1;
+            width: 100%;
+          }
+          .hero-search-btn {
+            grid-column: 1 / span 2;
+            grid-row: 2;
+            width: 100%;
+            padding: 11px 20px;
+            font-size: 0.9rem;
+          }
+          .hero-stats { gap: var(--space-3); padding: var(--space-2) var(--space-4); flex-wrap: wrap; justify-content: center; }
+          .hero-stat-value { font-size: 1rem; }
+          .hero-trust { gap: var(--space-2); }
+          .trust-item { font-size: 0.72rem; }
+          .categories-grid { gap: var(--space-2); }
+          .category-card { padding: var(--space-3); }
+          .category-icon { width: 40px; height: 40px; }
+          .category-name { font-size: 0.72rem; }
+          .cta-section { padding: var(--space-10) 0; }
+          .cta-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+          .cta-buttons { width: 100%; max-width: 280px; }
+          .cta-btn-primary, .cta-btn-ghost { padding: 13px 20px; font-size: 0.9rem; }
         }
       `}</style>
     </div>

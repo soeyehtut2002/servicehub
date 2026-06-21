@@ -391,6 +391,10 @@ export default function ProviderSchedulePage() {
           .gen-form { grid-template-columns:1fr; }
           .slot-stats { grid-template-columns:repeat(2,1fr); }
         }
+        @media(max-width:500px) {
+          .day-row { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+          .day-times { width: 100%; justify-content: flex-start; }
+        }
       `}</style>
     </div>
   );

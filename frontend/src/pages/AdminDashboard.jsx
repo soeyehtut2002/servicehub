@@ -158,7 +158,7 @@ const AdminDashboard = () => {
                   ))}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)' }}>
+                <div className="admin-charts-grid">
                   {/* Bookings by Status */}
                   <div className="card" style={{ padding: 'var(--space-6)' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 'var(--space-5)', color: 'var(--primary)', display:'flex', alignItems:'center', gap:7 }}><BarChart2 size={15} strokeWidth={2}/>Bookings by Status</h3>
@@ -610,7 +610,7 @@ const AdminDashboard = () => {
       <style>{`
         /* ── Admin Chat Layout ────────────────────────────────────── */
         .adm-chat-layout { display:grid; grid-template-columns:340px 1fr; gap:var(--space-4); height:680px; }
-        /* Sidebar */
+        /* ... rest of admin chat CSS ... */
         .adm-chat-sidebar { display:flex; flex-direction:column; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; }
         .adm-chat-sidebar-header { display:flex; align-items:center; justify-content:space-between; padding:var(--space-4); border-bottom:1px solid var(--border); }
         .adm-chat-sidebar-header h3 { font-size:.95rem; font-weight:700; margin:0; }
@@ -630,7 +630,6 @@ const AdminDashboard = () => {
         .adm-conv-meta { display:flex; flex-direction:column; align-items:flex-end; gap:2px; flex-shrink:0; }
         .adm-conv-count { font-size:.68rem; background:rgba(108,99,255,.12); color:var(--primary); border-radius:10px; padding:1px 6px; font-weight:700; }
         .adm-conv-time { font-size:.65rem; color:var(--text-muted); }
-        /* Thread */
         .adm-chat-thread { display:flex; flex-direction:column; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; }
         .adm-thread-header { padding:var(--space-4) var(--space-5); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; background:rgba(108,99,255,.04); }
         .adm-thread-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-3); color:var(--text-muted); }
@@ -647,7 +646,16 @@ const AdminDashboard = () => {
         .adm-msg-read { font-size:.65rem; color:var(--success); }
         .adm-msg-bubble { background:rgba(255,255,255,.06); border:1px solid; border-radius:var(--radius-lg); padding:var(--space-3) var(--space-4); font-size:.875rem; line-height:1.5; word-break:break-word; }
         .row-right .adm-msg-bubble { background:rgba(108,99,255,.12); }
-        @media(max-width:768px) { .adm-chat-layout { grid-template-columns:1fr; height:auto; } .adm-chat-thread { min-height:400px; } }
+        /* Responsive admin charts */
+        .admin-charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-6); }
+        @media(max-width:768px) {
+          .adm-chat-layout { grid-template-columns:1fr; height:auto; }
+          .adm-chat-thread { min-height:400px; }
+          .admin-charts-grid { grid-template-columns:1fr; }
+        }
+        @media(max-width:600px) {
+          .adm-chat-layout { height:auto; }
+        }
         /* ── Booking Chat Modal ───────────────────────────── */
         .bcm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); backdrop-filter:blur(6px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:var(--space-4); animation:fadeIn .2s ease; }
         .bcm-modal { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:760px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(0,0,0,.5); animation:slideUp .25s ease; overflow:hidden; }

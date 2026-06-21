@@ -141,9 +141,25 @@ async function bookingCancelledByCustomer({ to, providerName, customerName, serv
   await send(to, `Booking Cancelled — ${serviceTitle}`, html);
 }
 
+/** User: send password reset OTP */
+async function sendPasswordResetOtp({ to, userName, otp }) {
+  const html = wrap('Password Reset Request 🔑', `
+    <p>Hi ${userName},</p>
+    <p>We received a request to reset your password. Please use the following 6-digit One-Time Password (OTP) to complete the reset:</p>
+    <div class="card" style="text-align:center;padding:20px 0;">
+      <div class="label" style="margin-bottom:8px;">Your OTP Code</div>
+      <div style="font-size:32px;font-weight:bold;letter-spacing:6px;color:#3ecfcf;margin:8px 0;">${otp}</div>
+      <div style="font-size:12px;color:#a89ec9;">This OTP is valid for 15 minutes.</div>
+    </div>
+    <p>If you did not request this password reset, please ignore this email.</p>
+  `);
+  await send(to, 'Password Reset OTP — ServiceHub', html);
+}
+
 module.exports = {
   bookingConfirmed,
   newBookingReceived,
   bookingStatusUpdated,
   bookingCancelledByCustomer,
+  sendPasswordResetOtp,
 };

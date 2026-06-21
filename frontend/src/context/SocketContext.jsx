@@ -13,7 +13,7 @@ const SocketContext = createContext(null);
 const SOCKET_URL = 'http://localhost:5000';
 
 export const SocketProvider = ({ children }) => {
-  const { user }  = useAuth();
+  const { user, token }  = useAuth();
   const socketRef = useRef(null);
 
   const [onlineUsers,       setOnlineUsers]       = useState([]);
@@ -24,7 +24,7 @@ export const SocketProvider = ({ children }) => {
 
   // ── Connect / disconnect whenever auth changes ───────────────────────────────
   useEffect(() => {
-    if (!user) {
+    if (!user || !token) {
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
@@ -34,9 +34,6 @@ export const SocketProvider = ({ children }) => {
       setLiveMessages({});
       return;
     }
-
-    const token = localStorage.getItem('token');
-    if (!token) return;
 
     const socket = io(SOCKET_URL, {
       auth: { token },
@@ -73,6 +70,13 @@ export const SocketProvider = ({ children }) => {
       }));
     });
 
+    // Messages marked read in another tab/connection
+    socket.on('messages_marked_read', ({ sender_id }) => {
+      API.get('/messages/unread-count')
+        .then(res => setUnreadCount(res.data.count))
+        .catch(() => {});
+    });
+
     socket.on('connect_error', (err) => {
       console.warn('Socket connection error:', err.message);
     });
@@ -91,7 +95,7 @@ export const SocketProvider = ({ children }) => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [user?.id]);
+  }, [user?.id, token]);
 
   // ── Public helpers ────────────────────────────────────────────────────────────
   const sendMessage = useCallback((receiverId, content) => {

@@ -16,6 +16,22 @@ export const AuthProvider = ({ children }) => {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
+
+    const handleStorageChange = (e) => {
+      if (e.key === 'token' || e.key === 'user') {
+        const tokenVal = localStorage.getItem('token');
+        const userVal = localStorage.getItem('user');
+        if (tokenVal && userVal) {
+          setToken(tokenVal);
+          setUser(JSON.parse(userVal));
+        } else {
+          setUser(null);
+          setToken(null);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const login = (userData, authToken) => {

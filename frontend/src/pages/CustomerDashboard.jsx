@@ -126,11 +126,11 @@ const CustomerDashboard = () => {
               <tbody>
                 {filtered.map(b => (
                   <tr key={b.id}>
-                    <td>
+                    <td data-label="Service">
                       <div style={{fontWeight:700,color:'var(--text-primary)'}}>{b.service_title}</div>
                       <div style={{fontSize:'.75rem',color:'var(--text-muted)'}}>{b.category}</div>
                     </td>
-                    <td>
+                    <td data-label="Provider">
                       <Link
                         to={`/profile/${b.provider_id}`}
                         style={{fontWeight:600,color:'var(--primary)',textDecoration:'none'}}
@@ -139,7 +139,7 @@ const CustomerDashboard = () => {
                         {b.provider_name}
                       </Link>
                     </td>
-                    <td>
+                    <td data-label="Date / Slot">
                       {b.slot_date ? (
                         <div>
                           <div style={{fontWeight:600}}>{new Date(b.slot_date+'T00:00:00').toLocaleDateString()}</div>
@@ -149,7 +149,7 @@ const CustomerDashboard = () => {
                         new Date(b.booking_date).toLocaleString()
                       )}
                     </td>
-                    <td>
+                    <td data-label="Price Paid">
                       {/* Show payment currency if available, else fallback to service price */}
                       {b.converted_price && b.payment_currency ? (
                         <div>
@@ -169,8 +169,8 @@ const CustomerDashboard = () => {
                         </span>
                       )}
                     </td>
-                    <td><StatusBadge status={b.status}/></td>
-                    <td>
+                    <td data-label="Status"><StatusBadge status={b.status}/></td>
+                    <td data-label="Actions">
                       <div style={{display:'flex',gap:'var(--space-2)',flexWrap:'wrap'}}>
                         <Link to={`/services/${b.service_id}`} className="btn btn-ghost btn-sm">View</Link>
                         {canCancel(b.status) && (
