@@ -27,7 +27,7 @@ const BookingModal = ({ service, onClose, onBooked }) => {
   const nativeMeta  = getCurrencyMeta(nativeCurrency);
   const payMeta     = getCurrencyMeta(paymentCurrency);
   const convertedAmt = convertAmount(nativePrice, nativeCurrency, paymentCurrency, rates);
-  const exchangeRate = paymentCurrency !== nativeCurrency
+  const exchangeRate = (nativePrice > 0 && paymentCurrency !== nativeCurrency)
     ? (convertedAmt / nativePrice).toFixed(5)
     : 1;
 

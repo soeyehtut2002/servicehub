@@ -12,8 +12,8 @@ const CustomerDashboard = () => {
   const [bookings,      setBookings]      = useState([]);
   const [loading,       setLoading]       = useState(true);
   const [tab,           setTab]           = useState('all');
-  const [reviewBooking, setReviewBooking] = useState(null);
-  const [editReview,    setEditReview]    = useState(null); // existing review for edit
+  const [reviewBooking, setReviewBooking] = useState(null);  // booking object being reviewed
+  const [editReview,    setEditReview]    = useState(null);  // existing review for this booking (or null)
   const [cancelModal,   setCancelModal]   = useState(null);
   const [cancelReason,  setCancelReason]  = useState('');
 
@@ -43,7 +43,7 @@ const CustomerDashboard = () => {
     }
   };
 
-  // Load existing review for a booking (so user can edit)
+  // Load existing review for a booking (so user can edit if they already reviewed)
   const openReview = async (booking) => {
     try {
       const res = await API.get(`/reviews/service/${booking.service_id}`);
@@ -51,6 +51,7 @@ const CustomerDashboard = () => {
       setEditReview(myReview || null);
       setReviewBooking(booking);
     } catch {
+      setEditReview(null);
       setReviewBooking(booking);
     }
   };
@@ -165,7 +166,7 @@ const CustomerDashboard = () => {
                         </div>
                       ) : (
                         <span style={{color:'var(--success)',fontWeight:700}}>
-                          {getCurrencyMeta(b.currency||'USD').symbol}{parseFloat(b.price).toFixed(2)} {b.currency||'USD'}
+                          {formatCurrency(parseFloat(b.price), b.currency||'USD')}
                         </span>
                       )}
                     </td>
@@ -178,7 +179,7 @@ const CustomerDashboard = () => {
                         )}
                         {b.status === 'completed' && (
                           <button className="btn btn-outline btn-sm" onClick={() => openReview(b)}>
-                            {editReview ? 'Edit Review' : 'Review'}
+                            Review
                           </button>
                         )}
                       </div>
@@ -224,9 +225,9 @@ const CustomerDashboard = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h3 className="modal-title">
-                  {editReview ? '✏️ Edit Review' : '⭐ Review'}: {reviewBooking.service_title}
+                  {editReview ? '✏️ Edit Review' : '⭐ Leave a Review'}: {reviewBooking.service_title}
                 </h3>
-                <button className="modal-close" onClick={() => setReviewBooking(null)}>✕</button>
+                <button className="modal-close" onClick={() => { setReviewBooking(null); setEditReview(null); }}>✕</button>
               </div>
               <ReviewForm
                 serviceId={reviewBooking.service_id}
@@ -236,6 +237,7 @@ const CustomerDashboard = () => {
                   setReviewBooking(null);
                   setEditReview(null);
                   toast.success(editReview ? 'Review updated!' : 'Review submitted!');
+                  fetchBookings();
                 }}
               />
             </div>

@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 const BASE_URL = 'http://localhost:5000';
 
 const ProfilePage = () => {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,8 +42,8 @@ const ProfilePage = () => {
     try {
       const res = await API.put('/auth/profile', form);
       setProfile(res.data.user);
-      // Update auth context
-      login(res.data.user, localStorage.getItem('token'));
+      // Update auth context without re-reading token
+      updateUser(res.data.user);
       toast.success('Profile updated!');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to update profile');
@@ -105,7 +105,7 @@ const ProfilePage = () => {
         <div className="container">
           <div className="flex-between">
             <div>
-
+              <h1 className="h2">👤 My Profile</h1>
               <p className="text-muted mt-2">Manage your personal information and gallery</p>
             </div>
             <button className="btn btn-ghost" onClick={() => navigate(-1)}>← Back</button>

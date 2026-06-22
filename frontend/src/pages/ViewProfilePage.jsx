@@ -13,8 +13,8 @@ const avatarSrc = (url) => {
   return url.startsWith('/uploads') ? `${BASE_URL}${url}` : url;
 };
 
-const imgSrc = (url, category = '') => {
-  if (!url) return `https://source.unsplash.com/400x260/?${encodeURIComponent(category || 'service')}`;
+const imgSrc = (url) => {
+  if (!url) return null;  // return null so we can show a gradient placeholder instead
   return url.startsWith('/uploads') ? `${BASE_URL}${url}` : url;
 };
 
@@ -218,12 +218,21 @@ const ViewProfilePage = () => {
               <div>
                 <h2 className="vp-section-title" style={{display:'flex',alignItems:'center',gap:8}}><Wrench size={18} strokeWidth={2}/>Services</h2>
                 <div className="vp-services-grid">
-                  {profile.services.map(svc => {
+                  {profile.services.map((svc, idx) => {
                     const avail = AVAIL_MAP[svc.availability_status] || AVAIL_MAP.available;
+                    const imgUrl = imgSrc(svc.image_url);
                     return (
                       <Link key={svc.id} to={`/services/${svc.id}`} className="vp-service-card">
                         <div className="vp-service-img">
-                          <img src={imgSrc(svc.image_url, svc.category)} alt={svc.title} />
+                          {imgUrl ? (
+                            <img src={imgUrl} alt={svc.title} />
+                          ) : (
+                            <div style={{
+                              width:'100%', height:'100%',
+                              background:`linear-gradient(135deg,hsl(${(svc.id*47)%360},55%,65%),hsl(${(svc.id*47+100)%360},45%,55%))`,
+                              display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2.5rem'
+                            }}>🛠️</div>
+                          )}
                           <div className="vp-service-avail" style={{ color: avail.color }}>{avail.label}</div>
                         </div>
                         <div className="vp-service-body">
@@ -384,7 +393,7 @@ const ViewProfilePage = () => {
         .vp-stats-strip {
           display: flex;
           align-items: center;
-          background: #fff;
+          background: var(--bg-card);
           border: 1px solid var(--border);
           border-radius: var(--radius-xl);
           padding: var(--space-5) var(--space-8);
@@ -409,7 +418,7 @@ const ViewProfilePage = () => {
 
         /* ── Cards ──────────────────────────────────────────────── */
         .vp-card {
-          background: #fff;
+          background: var(--bg-card);
           border: 1px solid var(--border);
           border-radius: var(--radius-lg);
           padding: var(--space-5);
@@ -436,7 +445,7 @@ const ViewProfilePage = () => {
           gap: var(--space-4);
         }
         .vp-service-card {
-          background: #fff;
+          background: var(--bg-card);
           border: 1px solid var(--border);
           border-radius: var(--radius-lg);
           overflow: hidden;

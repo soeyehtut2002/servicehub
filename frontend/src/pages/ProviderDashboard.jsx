@@ -228,12 +228,22 @@ const ProviderDashboard = () => {
             <div className="grid-services grid">
               {services.map(s => (
                 <div key={s.id} className="provider-service-card">
-                  <div className="provider-service-img">
-                    <img
-                      src={s.image_url ? (s.image_url.startsWith('/uploads') ? `http://localhost:5000${s.image_url}` : s.image_url) : `https://source.unsplash.com/400x200/?${encodeURIComponent(s.category)}`}
-                      alt={s.title}
-                    />
-                    {!s.is_active && <div className="inactive-badge">Inactive</div>}
+                    <div className="provider-service-img">
+                      {s.image_url ? (
+                        <img
+                          src={s.image_url.startsWith('/uploads') ? `http://localhost:5000${s.image_url}` : s.image_url}
+                          alt={s.title}
+                        />
+                      ) : (
+                        <div className="provider-service-img-placeholder" style={{
+                          background: `linear-gradient(135deg, hsl(${(s.id * 47) % 360},60%,70%), hsl(${(s.id * 47 + 120) % 360},50%,60%))`,
+                          display:'flex', alignItems:'center', justifyContent:'center',
+                          fontSize:'2.5rem'
+                        }}>
+                          🛠️
+                        </div>
+                      )}
+                      {!s.is_active && <div className="inactive-badge">Inactive</div>}
                   </div>
                   <div className="provider-service-body">
                     <h3 className="provider-service-title">{s.title}</h3>
@@ -298,7 +308,7 @@ const ProviderDashboard = () => {
       )}
 
       <style>{`
-        .provider-service-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; transition:var(--transition); box-shadow:var(--shadow-sm); }
+        .provider-service-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; transition:var(--transition); box-shadow:var(--shadow-sm); }
         .provider-service-card:hover { border-color:var(--border-hover); transform:translateY(-3px); box-shadow:var(--shadow-md); }
         .provider-service-img { height:160px; overflow:hidden; position:relative; }
         .provider-service-img img { width:100%; height:100%; object-fit:cover; }

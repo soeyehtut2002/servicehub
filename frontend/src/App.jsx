@@ -29,94 +29,94 @@ function App() {
         <AuthProvider>
           <SocketProvider>
             <BrowserRouter>
-          <Navbar />
+              <Navbar />
 
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/"             element={<Home />} />
-            <Route path="/services"     element={<Services />} />
-            <Route path="/services/:id" element={<ServiceDetail />} />
-            <Route path="/login"        element={<Login />} />
-            <Route path="/register"     element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password"  element={<ResetPassword />} />
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/"             element={<Home />} />
+                <Route path="/services"     element={<Services />} />
+                <Route path="/services/:id" element={<ServiceDetail />} />
+                <Route path="/login"        element={<Login />} />
+                <Route path="/register"     element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password"  element={<ResetPassword />} />
 
-            {/* Customer Routes */}
-            <Route path="/dashboard/customer" element={
-              <ProtectedRoute allowedRoles={['customer']}>
-                <CustomerDashboard />
-              </ProtectedRoute>
-            } />
+                {/* Customer Routes */}
+                <Route path="/dashboard/customer" element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <CustomerDashboard />
+                  </ProtectedRoute>
+                } />
 
-            {/* Provider Routes */}
-            <Route path="/dashboard/provider" element={
-              <ProtectedRoute allowedRoles={['provider']}>
-                <ProviderDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/provider/schedule/:serviceId" element={
-              <ProtectedRoute allowedRoles={['provider']}>
-                <ProviderSchedulePage />
-              </ProtectedRoute>
-            } />
+                {/* Provider Routes */}
+                <Route path="/dashboard/provider" element={
+                  <ProtectedRoute allowedRoles={['provider']}>
+                    <ProviderDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/provider/schedule/:serviceId" element={
+                  <ProtectedRoute allowedRoles={['provider']}>
+                    <ProviderSchedulePage />
+                  </ProtectedRoute>
+                } />
 
-            {/* Admin Routes */}
-            <Route path="/dashboard/admin" element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
+                {/* Admin Routes */}
+                <Route path="/dashboard/admin" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
 
-            {/* Profile (all authenticated roles) */}
-            <Route path="/profile" element={
-              <ProtectedRoute allowedRoles={['customer', 'provider', 'admin']}>
-                <ProfilePage />
-              </ProtectedRoute>
-            } />
+                {/* Profile (all authenticated roles) */}
+                <Route path="/profile" element={
+                  <ProtectedRoute allowedRoles={['customer', 'provider', 'admin']}>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                } />
 
-            {/* View another user's profile (read-only) */}
-            <Route path="/profile/:id" element={
-              <ProtectedRoute allowedRoles={['customer', 'provider', 'admin']}>
-                <ViewProfilePage />
-              </ProtectedRoute>
-            } />
+                {/* View another user's profile (read-only) */}
+                <Route path="/profile/:id" element={
+                  <ProtectedRoute allowedRoles={['customer', 'provider', 'admin']}>
+                    <ViewProfilePage />
+                  </ProtectedRoute>
+                } />
 
-            {/* Chat — conversation list */}
-            <Route path="/chat" element={
-              <ProtectedRoute allowedRoles={['customer', 'provider', 'admin']}>
-                <ChatPage />
-              </ProtectedRoute>
-            } />
+                {/* Chat — conversation list */}
+                <Route path="/chat" element={
+                  <ProtectedRoute allowedRoles={['customer', 'provider', 'admin']}>
+                    <ChatPage />
+                  </ProtectedRoute>
+                } />
 
-            {/* Chat — specific conversation */}
-            <Route path="/chat/:userId" element={
-              <ProtectedRoute allowedRoles={['customer', 'provider', 'admin']}>
-                <ChatPage />
-              </ProtectedRoute>
-            } />
+                {/* Chat — specific conversation */}
+                <Route path="/chat/:userId" element={
+                  <ProtectedRoute allowedRoles={['customer', 'provider', 'admin']}>
+                    <ChatPage />
+                  </ProtectedRoute>
+                } />
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
 
-          {/* Global Toast Notifications */}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3500,
-              style: {
-                background: '#FFFFFF',
-                color: '#0C1A2E',
-                border: '1px solid #BAE6FD',
-                borderRadius: '12px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                boxShadow: '0 8px 32px rgba(14,165,233,0.15)',
-              },
-              success: { iconTheme: { primary: '#0EA5E9', secondary: '#fff' } },
-              error:   { iconTheme: { primary: '#EF4444', secondary: '#fff' } },
-            }}
-          />
+              {/* Global Toast Notifications */}
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 3500,
+                  style: {
+                    background: '#FFFFFF',
+                    color: '#0C1A2E',
+                    border: '1px solid #BAE6FD',
+                    borderRadius: '12px',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    boxShadow: '0 8px 32px rgba(14,165,233,0.15)',
+                  },
+                  success: { iconTheme: { primary: '#0EA5E9', secondary: '#fff' } },
+                  error:   { iconTheme: { primary: '#EF4444', secondary: '#fff' } },
+                }}
+              />
             </BrowserRouter>
           </SocketProvider>
         </AuthProvider>

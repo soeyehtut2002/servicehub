@@ -23,7 +23,7 @@ const Login = () => {
       login(res.data.user, res.data.token);
       toast.success(`Welcome back, ${res.data.user.name}!`);
       if (from) return navigate(from, { replace: true });
-      const routes = { customer: '/', provider: '/dashboard/provider', admin: '/dashboard/admin' };
+      const routes = { customer: '/dashboard/customer', provider: '/dashboard/provider', admin: '/dashboard/admin' };
       navigate(routes[res.data.user.role] || '/');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
