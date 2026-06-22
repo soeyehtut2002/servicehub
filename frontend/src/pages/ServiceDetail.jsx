@@ -494,7 +494,7 @@ const ServiceDetail = () => {
         .booking-card { background:var(--gradient-card); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-6); display:flex; flex-direction:column; gap:var(--space-5); position:sticky; top:88px; box-shadow:var(--shadow-card); }
         .booking-price { font-size:1.9rem; font-weight:900; color:var(--success); display:flex; align-items:baseline; gap:4px; flex-wrap:wrap; }
         .booking-cur-code { font-size:.55em; font-weight:600; color:var(--text-muted); }
-        .booking-converted { font-size:.88rem; color:var(--text-secondary); background:rgba(14,165,233,.07); border:1px solid rgba(14,165,233,.15); border-radius:var(--radius-md); padding:6px 10px; margin-top:-8px; }
+        .booking-converted { font-size:.88rem; color:var(--text-secondary); background:rgba(14,165,233,.07); border:1px solid rgba(14,165,233,.15); border-radius:var(--radius-md); padding:6px 10px; margin-top:-8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
         .booking-per { font-size:.9rem; font-weight:400; color:var(--text-muted); }
         .sd-cur-row { display:flex; flex-direction:column; gap:6px; }
         .sd-cur-label { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); }
@@ -534,6 +534,7 @@ const ServiceDetail = () => {
           .detail-meta { gap: var(--space-1); font-size: 0.78rem; }
           .booking-card { padding: var(--space-4); }
           .booking-price { font-size: 1.5rem; }
+          .booking-converted { font-size: 0.8rem; }
           .sd-cur-pills {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));

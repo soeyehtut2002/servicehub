@@ -324,9 +324,9 @@ const BookingModal = ({ service, onClose, onBooked }) => {
           .bm-cur-pill.active { background:linear-gradient(135deg,#6C63FF,#0ea5e9); border-color:transparent; color:#fff; box-shadow:0 2px 8px rgba(108,99,255,.35); }
           .bm-cur-pill:hover:not(.active) { border-color:var(--primary); color:var(--primary-dark); background:rgba(14,165,233,.06); }
 
-          .bm-conversion-line { display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,.55); border-radius:var(--radius-md); border:1px solid rgba(108,99,255,.15); }
+          .bm-conversion-line { display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,.55); border-radius:var(--radius-md); border:1px solid rgba(108,99,255,.15); flex-wrap:wrap; }
           .bm-conversion-icon { display:flex; align-items:center; flex-shrink:0; }
-          .bm-conversion-text { font-size:.88rem; font-weight:700; color:var(--text-primary); flex:1; }
+          .bm-conversion-text { font-size:.88rem; font-weight:700; color:var(--text-primary); flex:1; min-width:180px; }
           .bm-rate-chip { font-size:.7rem; background:rgba(108,99,255,.12); color:#6C63FF; border-radius:var(--radius-full); padding:2px 8px; font-weight:600; white-space:nowrap; }
           .bm-same-currency .bm-conversion-text { color:var(--text-muted); font-weight:400; }
           .bm-you-pay { font-size:.82rem; color:var(--text-secondary); }
@@ -351,7 +351,11 @@ const BookingModal = ({ service, onClose, onBooked }) => {
           .slot-tag { position:absolute; top:-6px; right:-6px; font-size:.6rem; padding:1px 5px; border-radius:4px; font-weight:700; }
           .slot-tag-full { background:var(--error); color:#fff; }
           .mb-3 { margin-bottom:var(--space-3); }
-          @media(max-width:480px) { .form-row{grid-template-columns:1fr;} }
+          @media(max-width:480px) { 
+            .form-row{grid-template-columns:1fr;} 
+            .booking-service-info { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+            .bm-conversion-text { font-size: 0.8rem; }
+          }
         `}</style>
       </div>
     </div>
