@@ -5,8 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { ShieldCheck, MapPin, Calendar, MessageSquare, Star, Mail, Phone, Key, BarChart2, Lock, Wrench, Image, ZoomIn, X, User } from 'lucide-react';
 import { getCurrencyMeta } from '../utils/currency';
-
-const BASE_URL = 'http://localhost:5000';
+import { BASE_URL } from '../config';
 
 const avatarSrc = (url) => {
   if (!url) return null;

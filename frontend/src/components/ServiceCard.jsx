@@ -2,13 +2,14 @@ import { Link } from 'react-router-dom';
 import StarRating from './StarRating';
 import { getCurrencyMeta } from '../utils/currency';
 import { MapPin, ShieldCheck } from 'lucide-react';
+import { BASE_URL } from '../config';
 
 const ServiceCard = ({ service }) => {
   const imageUrl = service.image_url
     ? service.image_url.startsWith('/uploads')
-      ? `http://localhost:5000${service.image_url}`
+      ? `${BASE_URL}${service.image_url}`
       : service.image_url
-    : `https://source.unsplash.com/400x250/?${encodeURIComponent(service.category)},service`;
+    : null;  // null = show gradient placeholder
 
   const truncate = (text, len = 90) =>
     text?.length > len ? text.slice(0, len) + '…' : text;
@@ -21,7 +22,15 @@ const ServiceCard = ({ service }) => {
   return (
     <Link to={`/services/${service.id}`} className="service-card">
       <div className="service-card-image">
-        <img src={imageUrl} alt={service.title} loading="lazy" />
+        {imageUrl ? (
+          <img src={imageUrl} alt={service.title} loading="lazy" />
+        ) : (
+          <div style={{
+            width:'100%', height:'100%',
+            background:`linear-gradient(135deg,hsl(${(service.id*53)%360},55%,65%),hsl(${(service.id*53+120)%360},45%,55%))`,
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem'
+          }}>🛠️</div>
+        )}
         <div className="service-card-category">{service.category}</div>
         {service.provider_verified && (
           <div className="service-card-verified">

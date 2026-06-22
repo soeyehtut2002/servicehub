@@ -10,8 +10,7 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import toast from 'react-hot-toast';
-
-const BASE_URL = 'http://localhost:5000';
+import { BASE_URL } from '../config';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const fmtTime = (ts) => {

@@ -10,7 +10,7 @@ import ReviewForm from '../components/ReviewForm';
 import toast from 'react-hot-toast';
 import { ZoomIn, X, MapPin, ShieldCheck, Camera, ClipboardList, Star, DollarSign, Tag, Clock, Users, MessageSquare, ArrowLeftRight, Lock, Calendar, Phone } from 'lucide-react';
 
-const BASE = 'http://localhost:5000';
+import { BASE_URL as BASE } from '../config';
 const src = (url, fallbackCat) => {
   if (!url) return `https://source.unsplash.com/800x500/?${encodeURIComponent(fallbackCat || 'service')}`;
   return url.startsWith('/uploads') ? `${BASE}${url}` : url;

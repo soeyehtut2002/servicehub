@@ -7,10 +7,9 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import API from '../api/axios';
+import { SOCKET_URL } from '../config';
 
 const SocketContext = createContext(null);
-
-const SOCKET_URL = 'http://localhost:5000';
 
 export const SocketProvider = ({ children }) => {
   const { user, token }  = useAuth();

@@ -6,6 +6,7 @@ import StatusBadge from '../components/StatusBadge';
 import toast from 'react-hot-toast';
 import { useCurrency } from '../context/CurrencyContext';
 import { SUPPORTED_CURRENCIES, getCurrencyMeta, convertAmount, formatCurrency } from '../utils/currency';
+import { BASE_URL } from '../config';
 
 const CATEGORIES = ['Cleaning','Plumbing','Electrical','Gardening','Painting','Moving','Tutoring','Photography','Repairing','Installing','Tech','Website','Customer Service','Page Admin','Parttime','Fulltime Job','Other'];
 
@@ -231,7 +232,7 @@ const ProviderDashboard = () => {
                     <div className="provider-service-img">
                       {s.image_url ? (
                         <img
-                          src={s.image_url.startsWith('/uploads') ? `http://localhost:5000${s.image_url}` : s.image_url}
+                          src={s.image_url.startsWith('/uploads') ? `${BASE_URL}${s.image_url}` : s.image_url}
                           alt={s.title}
                         />
                       ) : (
@@ -384,7 +385,6 @@ const ServiceFormModal = ({ service, onClose, onSaved }) => {
     setNewPreviews(prev => prev.filter((_, i) => i !== idx));
   };
 
-  const BASE_URL = 'http://localhost:5000';
   const thumbSrc = (url) => url.startsWith('/uploads') ? `${BASE_URL}${url}` : url;
 
   const handleSubmit = async (e) => {

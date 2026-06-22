@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { Search, Wrench, Star } from 'lucide-react';
+import { BASE_URL } from '../config';
 
 const SearchAutocomplete = ({ placeholder = 'Search services...', onClose }) => {
   const [query, setQuery] = useState('');
@@ -140,7 +141,7 @@ const SearchAutocomplete = ({ placeholder = 'Search services...', onClose }) => 
               onMouseLeave={e => e.currentTarget.style.background = i === activeIdx ? 'rgba(0,255,255,0.08)' : 'transparent'}
             >
               {s.image_url ? (
-                <img src={`http://localhost:5000${s.image_url}`} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                <img src={s.image_url.startsWith('/uploads') ? `${BASE_URL}${s.image_url}` : s.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
               ) : (
                 <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(0,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--primary)' }}>
                   <Wrench size={16} strokeWidth={2} />

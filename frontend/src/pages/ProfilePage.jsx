@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-
-const BASE_URL = 'http://localhost:5000';
+import { BASE_URL } from '../config';
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuth();

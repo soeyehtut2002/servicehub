@@ -4,7 +4,9 @@ import StarRating from './StarRating';
 import toast from 'react-hot-toast';
 import { Pencil, FileEdit, X, Save, Star } from 'lucide-react';
 
-const BASE_URL = 'http://localhost:5000';
+import { resolveUploadUrl } from '../config';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:5000';
 
 /**
  * ReviewForm — handles both CREATE and EDIT modes.

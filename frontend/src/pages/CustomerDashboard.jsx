@@ -9,13 +9,13 @@ import { getCurrencyMeta, formatCurrency } from '../utils/currency';
 
 const CustomerDashboard = () => {
   const { user } = useAuth();
-  const [bookings,      setBookings]      = useState([]);
-  const [loading,       setLoading]       = useState(true);
-  const [tab,           setTab]           = useState('all');
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('all');
   const [reviewBooking, setReviewBooking] = useState(null);  // booking object being reviewed
-  const [editReview,    setEditReview]    = useState(null);  // existing review for this booking (or null)
-  const [cancelModal,   setCancelModal]   = useState(null);
-  const [cancelReason,  setCancelReason]  = useState('');
+  const [editReview, setEditReview] = useState(null);  // existing review for this booking (or null)
+  const [cancelModal, setCancelModal] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
 
   const fetchBookings = async () => {
     try {
@@ -58,10 +58,10 @@ const CustomerDashboard = () => {
 
   const filtered = tab === 'all' ? bookings : bookings.filter(b => b.status === tab);
   const counts = {
-    pending:   bookings.filter(b => b.status === 'pending').length,
+    pending: bookings.filter(b => b.status === 'pending').length,
     confirmed: bookings.filter(b => b.status === 'confirmed').length,
     completed: bookings.filter(b => b.status === 'completed').length,
-    paused:    bookings.filter(b => b.status === 'paused').length,
+    paused: bookings.filter(b => b.status === 'paused').length,
   };
 
   const canCancel = (status) => ['pending', 'confirmed', 'paused'].includes(status);
@@ -72,11 +72,11 @@ const CustomerDashboard = () => {
         <div className="container">
           <div className="flex-between">
             <div>
-              <h1 className="h2">👋 My Dashboard</h1>
+              <h1 className="h2"></h1>
               <p className="text-muted mt-2">Welcome back, {user?.name}</p>
             </div>
-            <div style={{display:'flex',gap:'var(--space-3)'}}>
-              <Link to="/profile" className="btn btn-ghost">👤 My Profile</Link>
+            <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+              <Link to="/profile" className="btn btn-ghost"> My Profile</Link>
               <Link to="/services" className="btn btn-primary">Browse Services</Link>
             </div>
           </div>
@@ -87,13 +87,13 @@ const CustomerDashboard = () => {
         {/* Stats */}
         <div className="grid-4 grid mb-8">
           {[
-            { label:'Total Bookings', value:bookings.length,  icon:'📅', color:'#6C63FF' },
-            { label:'Pending',        value:counts.pending,   icon:'⏳', color:'#FFBE0B' },
-            { label:'Confirmed',      value:counts.confirmed, icon:'✅', color:'#6C63FF' },
-            { label:'Completed',      value:counts.completed, icon:'🎉', color:'#00D4AA' },
+            { label: 'Total Bookings', value: bookings.length, icon: '📅', color: '#6C63FF' },
+            { label: 'Pending', value: counts.pending, icon: '⏳', color: '#FFBE0B' },
+            { label: 'Confirmed', value: counts.confirmed, icon: '✅', color: '#6C63FF' },
+            { label: 'Completed', value: counts.completed, icon: '🎉', color: '#00D4AA' },
           ].map(s => (
             <div key={s.label} className="stat-card">
-              <div className="stat-icon" style={{background:`${s.color}22`}}>{s.icon}</div>
+              <div className="stat-icon" style={{ background: `${s.color}22` }}>{s.icon}</div>
               <div><div className="stat-value">{s.value}</div><div className="stat-label">{s.label}</div></div>
             </div>
           ))}
@@ -101,18 +101,18 @@ const CustomerDashboard = () => {
 
         {/* Tabs */}
         <div className="tabs mb-6">
-          {['all','pending','confirmed','paused','completed','cancelled'].map(t => (
-            <button key={t} className={`tab-btn ${tab===t?'active':''}`} onClick={() => setTab(t)}>
-              {t.charAt(0).toUpperCase()+t.slice(1)}
+          {['all', 'pending', 'confirmed', 'paused', 'completed', 'cancelled'].map(t => (
+            <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
+              {t.charAt(0).toUpperCase() + t.slice(1)}
               {t === 'paused' && counts.paused > 0 && (
-                <span style={{marginLeft:4,background:'#FF9800',color:'#000',borderRadius:'10px',fontSize:'.7rem',padding:'1px 6px'}}>{counts.paused}</span>
+                <span style={{ marginLeft: 4, background: '#FF9800', color: '#000', borderRadius: '10px', fontSize: '.7rem', padding: '1px 6px' }}>{counts.paused}</span>
               )}
             </button>
           ))}
         </div>
 
         {loading ? (
-          <div className="spinner-container"><div className="spinner"/></div>
+          <div className="spinner-container"><div className="spinner" /></div>
         ) : filtered.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">📭</div>
@@ -128,13 +128,13 @@ const CustomerDashboard = () => {
                 {filtered.map(b => (
                   <tr key={b.id}>
                     <td data-label="Service">
-                      <div style={{fontWeight:700,color:'var(--text-primary)'}}>{b.service_title}</div>
-                      <div style={{fontSize:'.75rem',color:'var(--text-muted)'}}>{b.category}</div>
+                      <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{b.service_title}</div>
+                      <div style={{ fontSize: '.75rem', color: 'var(--text-muted)' }}>{b.category}</div>
                     </td>
                     <td data-label="Provider">
                       <Link
                         to={`/profile/${b.provider_id}`}
-                        style={{fontWeight:600,color:'var(--primary)',textDecoration:'none'}}
+                        style={{ fontWeight: 600, color: 'var(--primary)', textDecoration: 'none' }}
                         title="View provider profile"
                       >
                         {b.provider_name}
@@ -143,8 +143,8 @@ const CustomerDashboard = () => {
                     <td data-label="Date / Slot">
                       {b.slot_date ? (
                         <div>
-                          <div style={{fontWeight:600}}>{new Date(b.slot_date+'T00:00:00').toLocaleDateString()}</div>
-                          <div style={{fontSize:'.75rem',color:'var(--text-muted)'}}>{b.start_time?.slice(0,5)} – {b.end_time?.slice(0,5)}</div>
+                          <div style={{ fontWeight: 600 }}>{new Date(b.slot_date + 'T00:00:00').toLocaleDateString()}</div>
+                          <div style={{ fontSize: '.75rem', color: 'var(--text-muted)' }}>{b.start_time?.slice(0, 5)} – {b.end_time?.slice(0, 5)}</div>
                         </div>
                       ) : (
                         new Date(b.booking_date).toLocaleString()
@@ -154,25 +154,25 @@ const CustomerDashboard = () => {
                       {/* Show payment currency if available, else fallback to service price */}
                       {b.converted_price && b.payment_currency ? (
                         <div>
-                          <div style={{fontWeight:800,color:'var(--primary)',fontSize:'.95rem'}}>
-                            {getCurrencyMeta(b.payment_currency).flag} {getCurrencyMeta(b.payment_currency).symbol}{parseFloat(b.converted_price).toLocaleString('en-US',{maximumFractionDigits:b.payment_currency==='USD'?2:0})} <span style={{fontSize:'.75em',fontWeight:600}}>{b.payment_currency}</span>
+                          <div style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '.95rem' }}>
+                            {getCurrencyMeta(b.payment_currency).flag} {getCurrencyMeta(b.payment_currency).symbol}{parseFloat(b.converted_price).toLocaleString('en-US', { maximumFractionDigits: b.payment_currency === 'USD' ? 2 : 0 })} <span style={{ fontSize: '.75em', fontWeight: 600 }}>{b.payment_currency}</span>
                           </div>
-                          <div style={{fontSize:'.73rem',color:'var(--text-muted)',marginTop:2}}>
-                            {getCurrencyMeta(b.currency||'USD').flag} {formatCurrency(parseFloat(b.price), b.currency||'USD')} original
+                          <div style={{ fontSize: '.73rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                            {getCurrencyMeta(b.currency || 'USD').flag} {formatCurrency(parseFloat(b.price), b.currency || 'USD')} original
                           </div>
-                          {b.exchange_rate && b.payment_currency !== (b.currency||'USD') && (
-                            <div style={{fontSize:'.68rem',color:'var(--text-muted)'}}>rate: {parseFloat(b.exchange_rate).toFixed(4)}</div>
+                          {b.exchange_rate && b.payment_currency !== (b.currency || 'USD') && (
+                            <div style={{ fontSize: '.68rem', color: 'var(--text-muted)' }}>rate: {parseFloat(b.exchange_rate).toFixed(4)}</div>
                           )}
                         </div>
                       ) : (
-                        <span style={{color:'var(--success)',fontWeight:700}}>
-                          {formatCurrency(parseFloat(b.price), b.currency||'USD')}
+                        <span style={{ color: 'var(--success)', fontWeight: 700 }}>
+                          {formatCurrency(parseFloat(b.price), b.currency || 'USD')}
                         </span>
                       )}
                     </td>
-                    <td data-label="Status"><StatusBadge status={b.status}/></td>
+                    <td data-label="Status"><StatusBadge status={b.status} /></td>
                     <td data-label="Actions">
-                      <div style={{display:'flex',gap:'var(--space-2)',flexWrap:'wrap'}}>
+                      <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
                         <Link to={`/services/${b.service_id}`} className="btn btn-ghost btn-sm">View</Link>
                         {canCancel(b.status) && (
                           <button className="btn btn-danger btn-sm" onClick={() => setCancelModal(b)}>Cancel</button>
@@ -193,13 +193,13 @@ const CustomerDashboard = () => {
 
         {/* ── Cancel Reason Modal ─────────────────────────────────────────── */}
         {cancelModal && (
-          <div className="modal-overlay" onClick={e => e.target===e.currentTarget && setCancelModal(null)}>
-            <div className="modal-content" style={{maxWidth:400}}>
+          <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setCancelModal(null)}>
+            <div className="modal-content" style={{ maxWidth: 400 }}>
               <div className="modal-header">
                 <h3 className="modal-title">Cancel Booking</h3>
                 <button className="modal-close" onClick={() => setCancelModal(null)}>✕</button>
               </div>
-              <p style={{color:'var(--text-secondary)',marginBottom:'var(--space-4)'}}>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }}>
                 Are you sure you want to cancel <strong>{cancelModal.service_title}</strong>?
               </p>
               <div className="form-group">
@@ -211,7 +211,7 @@ const CustomerDashboard = () => {
                   onChange={e => setCancelReason(e.target.value)}
                 />
               </div>
-              <div style={{display:'flex',gap:'var(--space-3)',justifyContent:'flex-end',marginTop:'var(--space-4)'}}>
+              <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end', marginTop: 'var(--space-4)' }}>
                 <button className="btn btn-ghost" onClick={() => setCancelModal(null)}>Keep Booking</button>
                 <button className="btn btn-danger" onClick={handleCancel}>Yes, Cancel</button>
               </div>
@@ -221,7 +221,7 @@ const CustomerDashboard = () => {
 
         {/* ── Review Modal ────────────────────────────────────────────────── */}
         {reviewBooking && (
-          <div className="modal-overlay" onClick={e => e.target===e.currentTarget && setReviewBooking(null)}>
+          <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setReviewBooking(null)}>
             <div className="modal-content">
               <div className="modal-header">
                 <h3 className="modal-title">
