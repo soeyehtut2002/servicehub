@@ -223,7 +223,16 @@ export default function NotificationBell() {
         .nb-dot{width:8px;height:8px;border-radius:50%;background:#6c63ff}
         .nb-arrow{font-size:1.1rem;color:var(--text-muted,#6b6585);line-height:1;transition:color .15s}
         .nb-clickable:hover .nb-arrow{color:var(--primary,#6c63ff)}
-        @media(max-width:400px){.nb-dropdown{width:95vw;right:-16px}}
+        @media(max-width:480px){
+          .nb-dropdown {
+            position: fixed;
+            top: 68px;
+            left: 12px;
+            right: 12px;
+            width: auto;
+            max-height: 75vh;
+          }
+        }
       `}</style>
     </div>
   );
