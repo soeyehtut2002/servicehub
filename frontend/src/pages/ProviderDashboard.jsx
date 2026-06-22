@@ -525,7 +525,7 @@ const ServiceFormModal = ({ service, onClose, onSaved }) => {
             />
             <span className="form-hint">Up to 7 photos · JPG, PNG, WebP · max 5 MB each. First photo is the cover.</span>
           </div>
-          <div style={{display:'flex',gap:'var(--space-3)',justifyContent:'flex-end'}}>
+          <div className="modal-actions">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Saving...' : service ? '💾 Update Service' : '🚀 Create Service'}</button>
           </div>

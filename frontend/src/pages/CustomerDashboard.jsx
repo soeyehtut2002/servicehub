@@ -211,7 +211,7 @@ const CustomerDashboard = () => {
                   onChange={e => setCancelReason(e.target.value)}
                 />
               </div>
-              <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end', marginTop: 'var(--space-4)' }}>
+              <div className="modal-actions">
                 <button className="btn btn-ghost" onClick={() => setCancelModal(null)}>Keep Booking</button>
                 <button className="btn btn-danger" onClick={handleCancel}>Yes, Cancel</button>
               </div>

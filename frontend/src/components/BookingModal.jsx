@@ -355,6 +355,8 @@ const BookingModal = ({ service, onClose, onBooked }) => {
             .form-row{grid-template-columns:1fr;} 
             .booking-service-info { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
             .bm-conversion-text { font-size: 0.8rem; }
+            .booking-actions { flex-direction: column-reverse; gap: var(--space-2); }
+            .booking-actions .btn { width: 100%; }
           }
         `}</style>
       </div>

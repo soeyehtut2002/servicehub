@@ -477,7 +477,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ─── Responsive (max-width) ────────────────────────────────────── */
 @media (max-width: 480px) {
-  .modal-content { padding: var(--space-4); }
+  .modal-content {
+    padding: var(--space-4);
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+  }
 }
 
 /* ─── Responsive (min-width) ────────────────────────────────────── */
@@ -716,4 +722,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 .lang-option:hover { background: var(--bg-surface); color: var(--primary); }
 .lang-option.active { color: var(--primary); background: var(--primary-glow); font-weight: 700; }
+
+/* ─── Modal Actions ───────────────────────────────────────────── */
+.modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  margin-top: var(--space-4);
+}
+@media (max-width: 480px) {
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: var(--space-2);
+    width: 100%;
+  }
+  .modal-actions .btn {
+    width: 100%;
+  }
+}
+
 
