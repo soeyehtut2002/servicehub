@@ -131,7 +131,7 @@ const ChatPage = () => {
     : null;
 
   return (
-    <div className="chat-page">
+    <div className={`chat-page ${activePartnerId ? 'active-chat' : 'list-chat'}`}>
       {/* ── Sidebar: Conversations ─────────────────────────────────── */}
       <aside className={`chat-sidebar ${sidebarOpen ? 'open' : 'collapsed'}`}>
         <div className="chat-sidebar-header">
@@ -476,13 +476,29 @@ const ChatPage = () => {
         @media(max-width:768px){
           .hide-lg { display:flex; }
           .chat-page { margin-top: 64px; height: calc(100vh - 64px); }
-          .chat-sidebar {
-            position:fixed; left:0; top:64px; bottom:0; z-index:200;
-            transform:translateX(-100%); box-shadow:var(--shadow-lg);
-            width: min(320px, 85vw);
+          
+          /* Mobile Conversions List View */
+          .chat-page.list-chat .chat-sidebar {
+            width: 100% !important;
+            max-width: 100% !important;
+            transform: none !important;
+            position: static !important;
+            box-shadow: none !important;
+            display: flex !important;
           }
-          .chat-sidebar.open { transform:translateX(0); }
-          .chat-sidebar.collapsed { transform:translateX(-100%); }
+          .chat-page.list-chat .chat-main {
+            display: none !important;
+          }
+
+          /* Mobile Active Chat View */
+          .chat-page.active-chat .chat-sidebar {
+            display: none !important;
+          }
+          .chat-page.active-chat .chat-main {
+            display: flex !important;
+            width: 100% !important;
+          }
+
           .msg-bubble-wrap { max-width:85%; }
           .chat-header-action { display: none; }
           .sidebar-open-btn { margin-top: var(--space-2); }

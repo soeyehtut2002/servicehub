@@ -94,12 +94,12 @@ const Navbar = () => {
         {/* Actions */}
         <div className="navbar-actions">
           {/* Theme Toggle */}
-          <button className="theme-toggle" onClick={toggleTheme} title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}>
+          <button className="theme-toggle nb-hide-sm" onClick={toggleTheme} title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}>
             {theme === 'dark' ? <Sun size={17} strokeWidth={2} /> : <Moon size={17} strokeWidth={2} />}
           </button>
 
           {/* Language Selector */}
-          <div className="lang-selector" ref={langRef}>
+          <div className="lang-selector nb-hide-sm" ref={langRef}>
             <button className="lang-btn" onClick={() => setLangOpen(o => !o)}>
               <Globe size={14} strokeWidth={2} />
               <span>{currentLang?.flag}</span>
@@ -233,6 +233,28 @@ const Navbar = () => {
               <Link to="/register" className="btn btn-primary w-full" onClick={() => setMobileMenuOpen(false)}>{t('nav_getstarted')}</Link>
             </div>
           )}
+          
+          <div className="mobile-divider" />
+          
+          {/* Mobile Settings Control Row (Theme Toggle & Language selector) */}
+          <div className="mobile-menu-controls">
+            <button className="mobile-control-btn" onClick={toggleTheme}>
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+            <div className="mobile-lang-list">
+              {languages.map(l => (
+                <button
+                  key={l.code}
+                  className={`mobile-lang-btn ${lang === l.code ? 'active' : ''}`}
+                  onClick={() => changeLang(l.code)}
+                >
+                  <span>{l.flag}</span>
+                  <span style={{ fontSize: '.75rem', fontWeight: 700 }}>{l.code.toUpperCase()}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -294,6 +316,57 @@ const Navbar = () => {
         .mobile-divider { height: 1px; background: var(--border); margin: var(--space-2) 0; }
         .mobile-user-info { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: var(--space-1); }
         .mobile-auth-buttons { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) 0; }
+        
+        .mobile-menu-controls {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px var(--space-4);
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          margin-top: var(--space-2);
+          gap: var(--space-2);
+        }
+        .mobile-control-btn {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          background: none;
+          border: none;
+          color: var(--text-secondary);
+          cursor: pointer;
+          font-size: 0.85rem;
+          font-weight: 600;
+          padding: 6px 10px;
+          border-radius: var(--radius-sm);
+          transition: var(--transition);
+        }
+        .mobile-control-btn:hover {
+          background: var(--bg-surface);
+          color: var(--primary-dark);
+        }
+        .mobile-lang-list {
+          display: flex;
+          gap: var(--space-1);
+        }
+        .mobile-lang-btn {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 8px;
+          background: none;
+          border: 1px solid transparent;
+          border-radius: var(--radius-sm);
+          cursor: pointer;
+          color: var(--text-muted);
+          transition: var(--transition);
+        }
+        .mobile-lang-btn.active {
+          background: rgba(14, 165, 233, 0.12);
+          border-color: var(--primary);
+          color: var(--primary-dark);
+        }
 
         @media (min-width: 769px) {
           .navbar { padding: 0 var(--space-6); height: 72px; }
@@ -308,6 +381,9 @@ const Navbar = () => {
           .chat-nav-btn { width: 36px; height: 36px; }
           .theme-toggle { width: 36px; height: 36px; }
           .lang-btn { padding: 5px 8px; }
+        }
+        @media (max-width: 576px) {
+          .nb-hide-sm { display: none !important; }
         }
         @media (max-width: 360px) {
           .logo-text { display: none; }
