@@ -5,10 +5,12 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 
 const SQL_MIGRATIONS = `
--- Add is_flagged + flag_reason to reviews
+-- Add is_flagged + flag_reason + image_urls + updated_at to reviews
 ALTER TABLE reviews
   ADD COLUMN IF NOT EXISTS is_flagged  BOOLEAN DEFAULT FALSE,
-  ADD COLUMN IF NOT EXISTS flag_reason TEXT;
+  ADD COLUMN IF NOT EXISTS flag_reason TEXT,
+  ADD COLUMN IF NOT EXISTS image_urls  TEXT[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- Add location to bookings
 ALTER TABLE bookings

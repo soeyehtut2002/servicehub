@@ -264,6 +264,11 @@ const ServiceDetail = () => {
   // Local currency selection — starts empty, set to service native currency on load
   const [selectedCurrency, setSelectedCurrency] = useState('');
 
+  // Google Maps review system state
+  const [ratingFilter,     setRatingFilter]     = useState(null);
+  const [sortBy,           setSortBy]           = useState('newest');
+  const [activeReviewImg,  setActiveReviewImg]  = useState(null);
+
   const fetchService = async () => {
     try {
       const [sRes, rRes] = await Promise.all([
@@ -285,6 +290,16 @@ const ServiceDetail = () => {
 
   useEffect(() => { fetchService(); }, [id]);
 
+  // Review image lightbox Escape key listener
+  useEffect(() => {
+    if (!activeReviewImg) return;
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setActiveReviewImg(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [activeReviewImg]);
+
   if (loading) return <div className="spinner-container" style={{minHeight:'100vh'}}><div className="spinner"/></div>;
   if (!service) return null;
 
@@ -304,6 +319,21 @@ const ServiceDetail = () => {
 
   const gallery = buildGallery(service);
 
+  // Compute Google Maps rating breakdown statistics
+  const totalReviewsCount = reviews.length;
+  const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  let ratingSum = 0;
+  reviews.forEach(r => {
+    const val = parseInt(r.rating) || 0;
+    if (val >= 1 && val <= 5) {
+      ratingCounts[val]++;
+      ratingSum += val;
+    }
+  });
+  const computedAvgRating = totalReviewsCount > 0 
+    ? (ratingSum / totalReviewsCount).toFixed(1) 
+    : parseFloat(service.avg_rating || 0).toFixed(1);
+
   return (
     <div className="page-wrapper">
 
@@ -315,9 +345,9 @@ const ServiceDetail = () => {
           <span className="badge badge-primary">{service.category}</span>
           <h1 className="detail-title">{service.title}</h1>
           <div className="detail-meta">
-            <StarRating rating={parseFloat(service.avg_rating)} readonly />
-            <span className="detail-rating-val">{parseFloat(service.avg_rating).toFixed(1)}</span>
-            <span className="detail-reviews">({service.review_count} reviews)</span>
+            <StarRating rating={parseFloat(computedAvgRating)} readonly />
+            <span className="detail-rating-val">{parseFloat(computedAvgRating).toFixed(1)}</span>
+            <span className="detail-reviews">({totalReviewsCount} review{totalReviewsCount !== 1 ? 's' : ''})</span>
             <span className="detail-sep">•</span>
             <span style={{display:'flex',alignItems:'center',gap:4}}><MapPin size={13} strokeWidth={2}/>{service.location}</span>
             {service.provider_verified && <span className="verified-badge" style={{display:'inline-flex',alignItems:'center',gap:4}}><ShieldCheck size={12} strokeWidth={2.5}/>Verified Provider</span>}
@@ -375,30 +405,134 @@ const ServiceDetail = () => {
                   onReviewSubmitted={fetchService}
                 />
               )}
-              {reviews.length === 0 ? (
-                <div className="empty-state"><div className="empty-icon" style={{display:'flex',justifyContent:'center',opacity:0.4}}><MessageSquare size={40} strokeWidth={1.5}/></div><p>No reviews yet. Be the first!</p></div>
-              ) : reviews.map((r) => (
-                <div key={r.id} className="card review-card">
-                  <div className="review-header">
-                    <div className="avatar">{r.customer_name?.[0]?.toUpperCase()}</div>
-                    <div>
-                      <p className="review-author">{r.customer_name}</p>
-                      <p className="review-date">{new Date(r.created_at).toLocaleDateString()}</p>
+
+              {/* Google Maps Style Rating Summary Card */}
+              {reviews.length > 0 && (
+                <div className="gm-review-summary card">
+                  <div className="gm-score-col">
+                    <div className="gm-big-score">{computedAvgRating}</div>
+                    <div className="gm-stars-row">
+                      <StarRating rating={parseFloat(computedAvgRating)} readonly size="md" />
                     </div>
-                    <div style={{marginLeft:'auto'}}><StarRating rating={r.rating} readonly size="sm" /></div>
+                    <div className="gm-reviews-count">{totalReviewsCount} review{totalReviewsCount !== 1 ? 's' : ''}</div>
                   </div>
-                  {r.comment && <p className="review-comment">{r.comment}</p>}
-                  {r.image_urls && r.image_urls.length > 0 && (
-                    <div className="review-images">
-                      {r.image_urls.map((url, i) => (
-                        <a key={i} href={url.startsWith('/uploads') ? `${BASE}${url}` : url} target="_blank" rel="noreferrer">
-                          <img src={url.startsWith('/uploads') ? `${BASE}${url}` : url} alt={`Review photo ${i+1}`} className="review-img-thumb-view" />
-                        </a>
-                      ))}
-                    </div>
-                  )}
+                  <div className="gm-chart-col">
+                    {[5, 4, 3, 2, 1].map((stars) => {
+                      const count = ratingCounts[stars];
+                      const pct = totalReviewsCount > 0 ? (count / totalReviewsCount) * 100 : 0;
+                      const isFilteringThis = ratingFilter === stars;
+                      return (
+                        <div
+                          key={stars}
+                          className={`gm-chart-row ${isFilteringThis ? 'active-filter' : ''}`}
+                          onClick={() => setRatingFilter(prev => prev === stars ? null : stars)}
+                          title={`Filter by ${stars} stars`}
+                        >
+                          <span className="gm-star-num">{stars} ★</span>
+                          <div className="gm-progress-bg">
+                            <div className="gm-progress-fill" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="gm-row-count">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              ))}
+              )}
+
+              {/* Filter and Sorting Controls */}
+              {reviews.length > 0 && (
+                <div className="gm-controls-bar">
+                  <div className="gm-filter-status">
+                    {ratingFilter ? (
+                      <span className="gm-filter-pill">
+                        Showing {ratingFilter}★ reviews
+                        <button className="gm-clear-filter-btn" onClick={() => setRatingFilter(null)}>
+                          <X size={12} strokeWidth={2.5} />
+                        </button>
+                      </span>
+                    ) : (
+                      <span className="gm-all-reviews-label">All reviews</span>
+                    )}
+                  </div>
+                  <div className="gm-sort-container">
+                    <span className="gm-sort-label">Sort by:</span>
+                    <select
+                      className="select gm-sort-select"
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                    >
+                      <option value="newest">Newest</option>
+                      <option value="highest">Highest rating</option>
+                      <option value="lowest">Lowest rating</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Review Items list */}
+              {(() => {
+                let filtered = [...reviews];
+                if (ratingFilter !== null) {
+                  filtered = filtered.filter(r => parseInt(r.rating) === ratingFilter);
+                }
+
+                // Sort
+                if (sortBy === 'newest') {
+                  filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                } else if (sortBy === 'highest') {
+                  filtered.sort((a, b) => b.rating - a.rating);
+                } else if (sortBy === 'lowest') {
+                  filtered.sort((a, b) => a.rating - b.rating);
+                }
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="empty-state">
+                      <div className="empty-icon" style={{display:'flex',justifyContent:'center',opacity:0.4}}>
+                        <MessageSquare size={40} strokeWidth={1.5}/>
+                      </div>
+                      <p>No {ratingFilter}★ reviews found.</p>
+                      {ratingFilter && (
+                        <button className="btn btn-outline btn-sm mt-3" onClick={() => setRatingFilter(null)}>
+                          Clear Filter
+                        </button>
+                      )}
+                    </div>
+                  );
+                }
+
+                return filtered.map((r) => (
+                  <div key={r.id} className="card review-card">
+                    <div className="review-header">
+                      <div className="avatar">{r.customer_name?.[0]?.toUpperCase()}</div>
+                      <div>
+                        <p className="review-author">{r.customer_name}</p>
+                        <p className="review-date">
+                          {new Date(r.created_at).toLocaleDateString()}
+                          {r.updated_at && r.updated_at !== r.created_at && (
+                            <span style={{ fontSize: '.8em', color: 'var(--text-muted)', marginLeft: 8 }}>(edited)</span>
+                          )}
+                        </p>
+                      </div>
+                      <div style={{marginLeft:'auto'}}><StarRating rating={r.rating} readonly size="sm" /></div>
+                    </div>
+                    {r.comment && <p className="review-comment">{r.comment}</p>}
+                    {r.image_urls && r.image_urls.length > 0 && (
+                      <div className="review-images">
+                        {r.image_urls.map((url, i) => {
+                          const fullUrl = url.startsWith('/uploads') ? `${BASE}${url}` : url;
+                          return (
+                            <div key={i} className="review-img-wrapper" onClick={() => setActiveReviewImg(fullUrl)}>
+                              <img src={fullUrl} alt={`Review photo ${i+1}`} className="review-img-thumb-view" />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ));
+              })()}
             </div>
           )}
         </div>
@@ -479,6 +613,18 @@ const ServiceDetail = () => {
 
       {showBooking && <BookingModal service={service} onClose={() => setShowBooking(false)} onBooked={() => navigate('/dashboard/customer')} />}
 
+      {/* Review Image Lightbox */}
+      {activeReviewImg && (
+        <div className="lightbox-overlay" onClick={() => setActiveReviewImg(null)}>
+          <button className="lightbox-close" onClick={() => setActiveReviewImg(null)}>
+            <X size={20} strokeWidth={2.5} />
+          </button>
+          <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+            <img src={activeReviewImg} alt="Enlarged review attachment" className="lightbox-image" />
+          </div>
+        </div>
+      )}
+
       <style>{`
         .detail-hero { position:relative; height:300px; overflow:hidden; margin-bottom:0; }
         .detail-hero-img { width:100%; height:100%; object-fit:cover; }
@@ -522,6 +668,220 @@ const ServiceDetail = () => {
         .review-images { display:flex; flex-wrap:wrap; gap:var(--space-2); margin-top:var(--space-3); }
         .review-img-thumb-view { width:72px; height:72px; object-fit:cover; border-radius:var(--radius-md); border:1px solid var(--border); cursor:pointer; transition:var(--transition); }
         .review-img-thumb-view:hover { transform:scale(1.05); border-color:var(--primary); }
+
+        /* ── Google Maps Review Layout ────────────────────────────────── */
+        .gm-review-summary {
+          display: grid;
+          grid-template-columns: 180px 1fr;
+          gap: var(--space-6);
+          padding: var(--space-6);
+          align-items: center;
+          background: var(--gradient-card);
+        }
+        .gm-score-col {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          border-right: 1px solid var(--border);
+          padding-right: var(--space-6);
+        }
+        .gm-big-score {
+          font-size: 3.5rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          line-height: 1.1;
+        }
+        .gm-stars-row {
+          margin: var(--space-2) 0;
+        }
+        .gm-reviews-count {
+          font-size: 0.85rem;
+          color: var(--text-muted);
+        }
+        .gm-chart-col {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .gm-chart-row {
+          display: flex;
+          align-items: center;
+          gap: var(--space-3);
+          cursor: pointer;
+          padding: 4px var(--space-2);
+          border-radius: var(--radius-md);
+          transition: all 0.2s ease;
+        }
+        .gm-chart-row:hover {
+          background: rgba(14,165,233,.08);
+        }
+        .gm-chart-row.active-filter {
+          background: rgba(14,165,233,.15);
+          box-shadow: inset 0 0 0 1px var(--primary);
+        }
+        .gm-star-num {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--text-secondary);
+          width: 32px;
+          text-align: right;
+          white-space: nowrap;
+        }
+        .gm-progress-bg {
+          flex: 1;
+          height: 8px;
+          background: var(--border);
+          border-radius: var(--radius-full);
+          overflow: hidden;
+        }
+        .gm-progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #FBBF24, #F59E0B);
+          border-radius: var(--radius-full);
+          transition: width 0.4s ease;
+        }
+        .gm-row-count {
+          font-size: 0.85rem;
+          font-weight: 500;
+          color: var(--text-muted);
+          width: 30px;
+          text-align: left;
+        }
+
+        /* ── Controls Bar ────────────────────────────────────────────── */
+        .gm-controls-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: var(--space-3) var(--space-4);
+          background: var(--bg-input);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          margin-bottom: var(--space-2);
+        }
+        .gm-filter-status {
+          display: flex;
+          align-items: center;
+        }
+        .gm-filter-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: var(--primary);
+          color: #fff;
+          font-size: 0.8rem;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: var(--radius-full);
+          box-shadow: 0 2px 6px rgba(14,165,233,.3);
+        }
+        .gm-clear-filter-btn {
+          background: transparent;
+          border: none;
+          color: #fff;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          padding: 0;
+          opacity: 0.8;
+          transition: opacity 0.2s;
+        }
+        .gm-clear-filter-btn:hover {
+          opacity: 1;
+        }
+        .gm-all-reviews-label {
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: var(--text-secondary);
+        }
+        .gm-sort-container {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+        }
+        .gm-sort-label {
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          font-weight: 500;
+        }
+        .gm-sort-select {
+          padding: 4px 28px 4px 10px !important;
+          height: auto !important;
+          font-size: 0.82rem !important;
+          border-radius: var(--radius-md) !important;
+        }
+
+        /* ── Lightbox Overlay ────────────────────────────────────────── */
+        .lightbox-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.85);
+          backdrop-filter: blur(8px);
+          z-index: 4000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: fadeIn 0.2s ease-out;
+        }
+        .lightbox-close {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: rgba(255,255,255,0.15);
+          border: 1px solid rgba(255,255,255,0.25);
+          color: #fff;
+          border-radius: 50%;
+          width: 44px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          z-index: 4100;
+        }
+        .lightbox-close:hover {
+          background: #EF4444;
+          border-color: #EF4444;
+          transform: rotate(90deg);
+        }
+        .lightbox-content {
+          max-width: 90vw;
+          max-height: 85vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .lightbox-image {
+          max-width: 100%;
+          max-height: 85vh;
+          object-fit: contain;
+          border-radius: var(--radius-lg);
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+          border: 3px solid rgba(255,255,255,0.1);
+        }
+        .review-img-wrapper {
+          cursor: pointer;
+        }
+
+        @media(max-width:600px){
+          .gm-review-summary {
+            grid-template-columns: 1fr;
+            gap: var(--space-4);
+            padding: var(--space-4);
+          }
+          .gm-score-col {
+            border-right: none;
+            border-bottom: 1px solid var(--border);
+            padding-right: 0;
+            padding-bottom: var(--space-4);
+          }
+          .gm-big-score {
+            font-size: 2.8rem;
+          }
+        }
+
         @media(max-width:900px){
           .detail-layout{grid-template-columns:1fr;}
           .booking-card{position:static;}
