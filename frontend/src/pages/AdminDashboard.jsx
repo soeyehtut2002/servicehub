@@ -835,8 +835,8 @@ const AdminDashboard = () => {
             </div>
 
             {/* Scrollable Form Body */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6)' }}>
-              <form onSubmit={handleAdSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-5)' }}>
+              <form onSubmit={handleAdSubmit} className="ad-form">
                 {/* Title */}
                 <div className="form-group">
                   <label className="form-label">Campaign Title *</label>
@@ -865,17 +865,16 @@ const AdminDashboard = () => {
                 {/* Banner Image URL & File Upload */}
                 <div className="form-group">
                   <label className="form-label">Banner Image (Cover) *</label>
-                  <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                  <div className="ad-form-upload-row">
                     <input
                       className="input"
                       value={adForm.image_url}
                       onChange={e => setAdForm({ ...adForm, image_url: e.target.value })}
                       placeholder="/uploads/banner.jpg or https://..."
                       required
-                      style={{ flex: 1 }}
                     />
-                    <label className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', margin: 0, padding: '7px 14px' }}>
-                      Upload File
+                    <label className="btn btn-outline ad-upload-btn">
+                      📎 Upload
                       <input
                         type="file"
                         accept="image/*"
@@ -889,16 +888,15 @@ const AdminDashboard = () => {
                 {/* Company Logo URL & File Upload */}
                 <div className="form-group">
                   <label className="form-label">Company Logo (Optional)</label>
-                  <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                  <div className="ad-form-upload-row">
                     <input
                       className="input"
                       value={adForm.logo_url}
                       onChange={e => setAdForm({ ...adForm, logo_url: e.target.value })}
                       placeholder="/uploads/logo.jpg or https://..."
-                      style={{ flex: 1 }}
                     />
-                    <label className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', margin: 0, padding: '7px 14px' }}>
-                      Upload File
+                    <label className="btn btn-outline ad-upload-btn">
+                      📎 Upload
                       <input
                         type="file"
                         accept="image/*"
@@ -910,7 +908,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Row for CTA Text & URL */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                <div className="ad-form-row-2">
                   <div className="form-group">
                     <label className="form-label">CTA Button Text</label>
                     <input
@@ -932,7 +930,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Scheduling: Start & End Date */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                <div className="ad-form-row-2">
                   <div className="form-group">
                     <label className="form-label">Start Date (Optional)</label>
                     <input
@@ -954,13 +952,13 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Is Active Checkbox */}
-                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <input
                     type="checkbox"
                     id="ad-is-active"
                     checked={adForm.is_active}
                     onChange={e => setAdForm({ ...adForm, is_active: e.target.checked })}
-                    style={{ width: 16, height: 16, cursor: 'pointer' }}
+                    style={{ width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
                   />
                   <label htmlFor="ad-is-active" style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', cursor: 'pointer' }}>
                     Publish immediately (Is Active)
@@ -968,7 +966,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Actions */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)', marginTop: 'var(--space-4)' }}>
+                <div className="ad-form-actions">
                   <button type="button" className="btn btn-outline" onClick={() => setShowAdModal(false)}>Cancel</button>
                   <button type="submit" className="btn btn-primary">
                     {editingAd ? 'Update Ad' : 'Create Ad'}
@@ -1058,6 +1056,24 @@ const AdminDashboard = () => {
         .ad-admin-logo-placeholder { width:36px; height:36px; border-radius:50%; background:var(--primary-glow); color:var(--primary); display:flex; align-items:center; justify-content:center; border:1.5px solid var(--border); flex-shrink:0; }
         .ad-admin-actions { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; margin-top:auto; padding-top:var(--space-3); border-top:1px solid var(--border); }
         @media(max-width:480px) { .ads-card-grid { grid-template-columns:1fr; } }
+
+        /* ── Ad Form (responsive) ─────────────────────── */
+        .ad-form { display:flex; flex-direction:column; gap:var(--space-4); }
+        /* 2-col grid — collapses to 1-col on mobile */
+        .ad-form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); }
+        /* Input + upload-button row — stacks on very narrow screens */
+        .ad-form-upload-row { display:flex; gap:var(--space-2); align-items:stretch; }
+        .ad-form-upload-row .input { flex:1; min-width:0; }
+        .ad-upload-btn { display:inline-flex; align-items:center; cursor:pointer; margin:0; padding:8px 12px; flex-shrink:0; white-space:nowrap; }
+        /* Action buttons row */
+        .ad-form-actions { display:flex; justify-content:flex-end; gap:var(--space-3); margin-top:var(--space-2); flex-wrap:wrap; }
+        @media(max-width:500px) {
+          .ad-form-row-2 { grid-template-columns:1fr; }
+          .ad-form-upload-row { flex-direction:column; }
+          .ad-upload-btn { width:100%; justify-content:center; }
+          .ad-form-actions { justify-content:stretch; }
+          .ad-form-actions .btn { flex:1; justify-content:center; }
+        }
       `}</style>
     </div>
   );
