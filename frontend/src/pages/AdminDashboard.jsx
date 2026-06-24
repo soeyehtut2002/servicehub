@@ -818,8 +818,27 @@ const AdminDashboard = () => {
 
       {/* ── Advertisement Modal ─────────────────────────────────────────────── */}
       {showAdModal && (
-        <div className="bcm-overlay ad-modal-overlay" onClick={() => setShowAdModal(false)}>
-          <div className="bcm-modal ad-form-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
+        <div
+          className="bcm-overlay"
+          onClick={() => setShowAdModal(false)}
+          style={{
+            alignItems: 'flex-start',
+            overflowY: 'auto',
+            padding: '16px',
+            paddingTop: '10vh',
+          }}
+        >
+          <div
+            className="bcm-modal"
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxWidth: 500,
+              margin: '0 auto',
+              flexShrink: 0,
+              /* Force smooth slide — no bounce */
+              animation: 'adFormIn 0.2s ease-out',
+            }}
+          >
             {/* Header */}
             <div className="bcm-header">
               <div className="bcm-header-left">
@@ -835,7 +854,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Scrollable Form Body */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-5)' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-5)', overscrollBehavior: 'contain' }}>
               <form onSubmit={handleAdSubmit} className="ad-form">
                 {/* Title */}
                 <div className="form-group">
@@ -1074,33 +1093,10 @@ const AdminDashboard = () => {
           .ad-form-actions { justify-content:stretch; }
           .ad-form-actions .btn { flex:1; justify-content:center; }
         }
-        /* ── Ad form modal overrides (no bounce) ──────────── */
-        .ad-modal-overlay { align-items:center; }
-        .ad-form-modal {
-          max-height: 90dvh;
-          max-height: 90vh; /* fallback */
-          animation: adModalIn 0.22s ease-out;
-        }
-        @keyframes adModalIn {
-          from { opacity:0; transform:translateY(16px); }
+        /* ── Ad form modal ──────────────────────── */
+        @keyframes adFormIn {
+          from { opacity:0; transform:translateY(20px); }
           to   { opacity:1; transform:translateY(0); }
-        }
-        /* On mobile anchor to bottom so keyboard open won't jump */
-        @media(max-width:600px) {
-          .ad-modal-overlay { align-items:flex-end; padding:0; }
-          .ad-form-modal {
-            max-width:100% !important;
-            width:100%;
-            border-bottom-left-radius:0;
-            border-bottom-right-radius:0;
-            max-height:92dvh;
-            max-height:92vh;
-            animation: adModalInMobile 0.22s ease-out;
-          }
-          @keyframes adModalInMobile {
-            from { opacity:0; transform:translateY(40px); }
-            to   { opacity:1; transform:translateY(0); }
-          }
         }
       `}</style>
     </div>
