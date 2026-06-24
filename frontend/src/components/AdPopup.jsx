@@ -106,19 +106,19 @@ const AdPopup = () => {
         .ad-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(10, 10, 20, 0.65);
-          backdrop-filter: blur(5px);
+          background: rgba(10, 10, 20, 0.72);
+          backdrop-filter: blur(6px);
           z-index: 2000;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: var(--space-4);
+          padding: 16px;
           animation: adFadeIn 0.25s ease;
         }
 
         .ad-modal {
-          width: 90%;
-          max-width: 380px;
+          width: 95%;
+          max-width: 460px;
           background: var(--gradient-card);
           border: 1px solid var(--border);
           border-radius: var(--radius-xl);
@@ -134,12 +134,12 @@ const AdPopup = () => {
           position: absolute;
           top: 10px;
           right: 10px;
-          background: rgba(10, 10, 20, 0.55);
+          background: rgba(10, 10, 20, 0.6);
           color: #fff;
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          border: 1px solid rgba(255, 255, 255, 0.18);
           border-radius: 50%;
-          width: 28px;
-          height: 28px;
+          width: 30px;
+          height: 30px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -152,56 +152,63 @@ const AdPopup = () => {
           border-color: transparent;
         }
 
+        /* 16:9 aspect-ratio image — always fills frame */
         .ad-image-container {
-          width: 100%;
-          height: 140px;
           position: relative;
+          width: 100%;
+          height: 0;
+          padding-bottom: 52%;   /* ~16:9 */
           background: #000;
+          overflow: hidden;
+          flex-shrink: 0;
         }
         .ad-image {
+          position: absolute;
+          inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
+          display: block;
         }
         .ad-category-badge {
           position: absolute;
           bottom: 8px;
           left: 12px;
-          background: rgba(10, 10, 20, 0.7);
-          color: rgba(255, 255, 255, 0.9);
+          background: rgba(10, 10, 20, 0.72);
+          color: rgba(255, 255, 255, 0.95);
           font-size: 0.65rem;
           font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          padding: 2px 8px;
+          letter-spacing: 0.06em;
+          padding: 3px 9px;
           border-radius: var(--radius-sm);
           backdrop-filter: blur(4px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .ad-body {
-          padding: var(--space-4);
+          padding: 16px 18px 14px;
           display: flex;
           flex-direction: column;
-          gap: var(--space-4);
+          gap: 12px;
         }
 
         .ad-header-row {
           display: flex;
-          gap: var(--space-3);
+          gap: 12px;
           align-items: flex-start;
         }
         .ad-logo {
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           object-fit: cover;
           border: 1.5px solid var(--border);
           flex-shrink: 0;
         }
         .ad-logo-placeholder {
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           background: var(--primary-glow);
           color: var(--primary);
@@ -217,7 +224,7 @@ const AdPopup = () => {
           min-width: 0;
         }
         .ad-title {
-          font-size: 0.95rem;
+          font-size: 1rem;
           font-weight: 800;
           color: var(--text-primary);
           white-space: nowrap;
@@ -225,10 +232,10 @@ const AdPopup = () => {
           text-overflow: ellipsis;
         }
         .ad-desc {
-          font-size: 0.78rem;
+          font-size: 0.82rem;
           color: var(--text-secondary);
-          line-height: 1.4;
-          margin-top: 2px;
+          line-height: 1.45;
+          margin-top: 3px;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -239,7 +246,7 @@ const AdPopup = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          gap: var(--space-2);
+          gap: 8px;
         }
 
         .ad-checkbox-container {
@@ -253,8 +260,8 @@ const AdPopup = () => {
           text-align: left;
         }
         .ad-checkbox {
-          width: 14px;
-          height: 14px;
+          width: 15px;
+          height: 15px;
           border-radius: 3px;
           border: 1.5px solid var(--border);
           background: var(--bg-input);
@@ -263,23 +270,24 @@ const AdPopup = () => {
           justify-content: center;
           transition: var(--transition);
           color: #fff;
+          flex-shrink: 0;
         }
         .ad-checkbox.checked {
           background: var(--primary);
           border-color: var(--primary);
         }
         .ad-checkbox-label {
-          font-size: 0.72rem;
+          font-size: 0.74rem;
           color: var(--text-muted);
           font-weight: 500;
         }
 
         .ad-cta-btn {
-          padding: 7px 14px !important;
-          font-size: 0.78rem !important;
+          padding: 8px 18px !important;
+          font-size: 0.82rem !important;
           border-radius: var(--radius-md) !important;
           flex-shrink: 0;
-          box-shadow: 0 3px 8px var(--primary-glow) !important;
+          box-shadow: 0 3px 10px var(--primary-glow) !important;
         }
 
         @keyframes adFadeIn {
@@ -287,15 +295,19 @@ const AdPopup = () => {
           to { opacity: 1; }
         }
         @keyframes adScaleIn {
-          from { transform: scale(0.92); opacity: 0; }
+          from { transform: scale(0.90); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
         }
 
-        /* Responsive height boundary for small mobiles */
-        @media(max-height: 600px) {
-          .ad-overlay { align-items: flex-start; overflow-y: auto; padding-top: var(--space-10); }
-          .ad-image-container { height: 100px; }
-          .ad-body { padding: var(--space-3); gap: var(--space-3); }
+        /* Small mobile (height < 600px) */
+        @media(max-height: 620px) {
+          .ad-overlay { align-items: flex-start; overflow-y: auto; padding-top: 12px; }
+          .ad-image-container { padding-bottom: 42%; }
+          .ad-body { padding: 12px 14px 10px; gap: 8px; }
+        }
+        /* Very narrow screens */
+        @media(max-width: 360px) {
+          .ad-modal { width: 100%; border-radius: var(--radius-lg); }
         }
       `}</style>
     </div>

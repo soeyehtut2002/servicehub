@@ -644,122 +644,95 @@ const AdminDashboard = () => {
             {/* ── Ads ──────────────────────────────────────────── */}
             {tab === 'ads' && (
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
+                <div className="ads-header-row">
                   <div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Megaphone size={20} color="var(--primary)" /> Advertisement Banners
                     </h3>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Manage compact home screen popups and scheduling</p>
                   </div>
-                  <button className="btn btn-primary" onClick={handleOpenCreateAd} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                    + Create Advertisement
+                  <button className="btn btn-primary" onClick={handleOpenCreateAd} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                    + Create Ad
                   </button>
                 </div>
 
-                <div className="table-wrapper">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>Preview</th>
-                        <th>Logo</th>
-                        <th>Title &amp; Description</th>
-                        <th>Schedule</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {ads.map(ad => {
-                        const now = new Date();
-                        const started = !ad.start_date || new Date(ad.start_date) <= now;
-                        const ended = ad.end_date && new Date(ad.end_date) < now;
+                {ads.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center', opacity: 0.4 }}>
+                      <Megaphone size={40} strokeWidth={1.5} />
+                    </div>
+                    <p>No advertisements created yet</p>
+                  </div>
+                ) : (
+                  <div className="ads-card-grid">
+                    {ads.map(ad => {
+                      const now = new Date();
+                      const started = !ad.start_date || new Date(ad.start_date) <= now;
+                      const ended = ad.end_date && new Date(ad.end_date) < now;
 
-                        let statusText = 'Inactive';
-                        let statusClass = 'badge-danger';
-                        if (ad.is_active) {
-                          if (ended) {
-                            statusText = 'Expired';
-                            statusClass = 'badge-muted';
-                          } else if (!started) {
-                            statusText = 'Scheduled';
-                            statusClass = 'badge-primary';
-                          } else {
-                            statusText = 'Active';
-                            statusClass = 'badge-success';
-                          }
-                        }
+                      let statusText = 'Inactive';
+                      let statusClass = 'badge-danger';
+                      if (ad.is_active) {
+                        if (ended) { statusText = 'Expired'; statusClass = 'badge-muted'; }
+                        else if (!started) { statusText = 'Scheduled'; statusClass = 'badge-primary'; }
+                        else { statusText = 'Active'; statusClass = 'badge-success'; }
+                      }
 
-                        return (
-                          <tr key={ad.id}>
-                            <td>
-                              <img
-                                src={resolveUploadUrl(ad.image_url)}
-                                alt=""
-                                style={{ width: 80, height: 45, objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}
-                              />
-                            </td>
-                            <td>
+                      return (
+                        <div key={ad.id} className="ad-admin-card">
+                          {/* Banner Image */}
+                          <div className="ad-admin-img-wrap">
+                            <img
+                              src={resolveUploadUrl(ad.image_url)}
+                              alt={ad.title}
+                              className="ad-admin-img"
+                            />
+                            <span className={`badge ${statusClass} ad-admin-status-badge`}>{statusText}</span>
+                          </div>
+
+                          {/* Card Body */}
+                          <div className="ad-admin-body">
+                            <div className="ad-admin-meta">
                               {ad.logo_url ? (
-                                <img
-                                  src={resolveUploadUrl(ad.logo_url)}
-                                  alt=""
-                                  style={{ width: 30, height: 30, objectFit: 'cover', borderRadius: '50%', border: '1px solid var(--border)' }}
-                                />
+                                <img src={resolveUploadUrl(ad.logo_url)} alt="" className="ad-admin-logo" />
                               ) : (
-                                <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <Megaphone size={12} color="var(--text-muted)" />
-                                </div>
+                                <div className="ad-admin-logo-placeholder"><Megaphone size={14} /></div>
                               )}
-                            </td>
-                            <td>
-                              <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{ad.title}</div>
-                              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2, maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {ad.description || '—'}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ad.title}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                                  {ad.start_date ? new Date(ad.start_date).toLocaleDateString() : 'Now'} →{' '}
+                                  {ad.end_date ? new Date(ad.end_date).toLocaleDateString() : '∞'}
+                                </div>
                               </div>
-                            </td>
-                            <td>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>
-                                {ad.start_date ? new Date(ad.start_date).toLocaleDateString() : 'Immediate'}
-                              </div>
-                              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                                to {ad.end_date ? new Date(ad.end_date).toLocaleDateString() : 'Indefinite'}
-                              </div>
-                            </td>
-                            <td>
+                            </div>
+
+                            {ad.description && (
+                              <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '6px 0 0', lineHeight: 1.4,
+                                display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                {ad.description}
+                              </p>
+                            )}
+
+                            <div className="ad-admin-actions">
                               <button
                                 className={`btn btn-sm ${ad.is_active ? 'btn-success' : 'btn-outline'}`}
                                 onClick={() => handleToggleAd(ad.id)}
-                                style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                                style={{ fontSize: '0.72rem', padding: '4px 10px' }}
                               >
-                                <span className={`badge ${statusClass}`} style={{ border: 'none', padding: 0 }}>
-                                  {statusText}
-                                </span>
+                                {ad.is_active ? '● Active' : '○ Inactive'}
                               </button>
-                            </td>
-                            <td>
-                              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                                <button className="btn btn-ghost btn-sm" onClick={() => handleOpenEditAd(ad)}>
-                                  Edit
-                                </button>
-                                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteAd(ad.id)} style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                  <Trash2 size={13} strokeWidth={2} />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                  {ads.length === 0 && (
-                    <div className="empty-state">
-                      <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center', opacity: 0.4 }}>
-                        <Megaphone size={40} strokeWidth={1.5} />
-                      </div>
-                      <p>No advertisements created yet</p>
-                    </div>
-                  )}
-                </div>
+                              <button className="btn btn-ghost btn-sm" onClick={() => handleOpenEditAd(ad)}>Edit</button>
+                              <button className="btn btn-danger btn-sm" onClick={() => handleDeleteAd(ad.id)} style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                <Trash2 size={13} strokeWidth={2} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -1071,6 +1044,20 @@ const AdminDashboard = () => {
         .bcm-messages { flex:1; overflow-y:auto; padding:var(--space-5) var(--space-6); display:flex; flex-direction:column; gap:var(--space-4); }
         .bcm-no-msgs { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-3); color:var(--text-muted); text-align:center; padding:var(--space-10); }
         @media(max-width:600px) { .bcm-modal { max-height:95vh; } .bcm-header { padding:var(--space-4); } .bcm-messages { padding:var(--space-4); } }
+        /* ── Ads Admin Card Grid ──────────────────────────── */
+        .ads-header-row { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-4); margin-bottom:var(--space-6); flex-wrap:wrap; }
+        .ads-card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:var(--space-5); }
+        .ad-admin-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; display:flex; flex-direction:column; transition:var(--transition); }
+        .ad-admin-card:hover { border-color:var(--primary); box-shadow:0 0 0 1px var(--primary-glow); transform:translateY(-2px); }
+        .ad-admin-img-wrap { position:relative; width:100%; height:0; padding-bottom:56.25%; background:#000; overflow:hidden; flex-shrink:0; }
+        .ad-admin-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+        .ad-admin-status-badge { position:absolute; top:8px; right:8px; font-size:0.65rem !important; font-weight:700 !important; border:none !important; }
+        .ad-admin-body { padding:var(--space-4); display:flex; flex-direction:column; flex:1; gap:var(--space-3); }
+        .ad-admin-meta { display:flex; align-items:center; gap:var(--space-3); }
+        .ad-admin-logo { width:36px; height:36px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border); flex-shrink:0; }
+        .ad-admin-logo-placeholder { width:36px; height:36px; border-radius:50%; background:var(--primary-glow); color:var(--primary); display:flex; align-items:center; justify-content:center; border:1.5px solid var(--border); flex-shrink:0; }
+        .ad-admin-actions { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; margin-top:auto; padding-top:var(--space-3); border-top:1px solid var(--border); }
+        @media(max-width:480px) { .ads-card-grid { grid-template-columns:1fr; } }
       `}</style>
     </div>
   );
