@@ -21,6 +21,7 @@ const Navbar = () => {
   const [langOpen,       setLangOpen]       = useState(false);
   const userMenuRef = useRef(null);
   const langRef     = useRef(null);
+  const navRef      = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -32,6 +33,7 @@ const Navbar = () => {
     const handleClick = (e) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false);
       if (langRef.current    && !langRef.current.contains(e.target))     setLangOpen(false);
+      if (navRef.current     && !navRef.current.contains(e.target))      setMobileMenuOpen(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -66,7 +68,7 @@ const Navbar = () => {
   const currentLang = languages.find(l => l.code === lang);
 
   return (
-    <nav className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
+    <nav ref={navRef} className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar-inner container">
         {/* Logo */}
         <Link to="/" className="navbar-logo" onClick={() => setMobileMenuOpen(false)}>
@@ -198,6 +200,12 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <div className={`mobile-menu ${mobileMenuOpen ? 'mobile-menu-open' : ''}`}>
         <div className="mobile-menu-inner">
+          <div className="mobile-menu-header">
+            <span className="mobile-menu-label">Menu</span>
+            <button className="mobile-close-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
+              <X size={16} />
+            </button>
+          </div>
           <div className="mobile-search">
             <SearchAutocomplete placeholder={t('nav_search_ph')} onClose={() => setMobileMenuOpen(false)} />
           </div>
@@ -307,6 +315,10 @@ const Navbar = () => {
         /* Mobile Menu */
         .mobile-menu { position: fixed; top: 64px; left: 0; right: 0; background: var(--bg-card); border-bottom: 1.5px solid var(--border); box-shadow: 0 8px 32px rgba(14,165,233,0.15); z-index: calc(var(--z-nav) - 1); transform: translateY(-110%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), visibility 0.28s; max-height: calc(100vh - 64px); overflow-y: auto; -webkit-overflow-scrolling: touch; visibility: hidden; pointer-events: none; }
         .mobile-menu.mobile-menu-open { transform: translateY(0); visibility: visible; pointer-events: auto; }
+        .mobile-menu-header { display: flex; align-items: center; justify-content: space-between; padding: 6px var(--space-4) 10px; border-bottom: 1px solid var(--border); margin-bottom: var(--space-3); }
+        .mobile-menu-label { font-weight: 800; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .mobile-close-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--bg-surface); border: 1.5px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: var(--transition); }
+        .mobile-close-btn:hover { background: rgba(239, 68, 68, 0.08); color: var(--danger); border-color: var(--danger); }
         .mobile-menu-inner { display: flex; flex-direction: column; padding: var(--space-4); gap: var(--space-1); }
         .mobile-search { margin-bottom: var(--space-3); }
         .mobile-link { display: flex; align-items: center; gap: var(--space-3); padding: 13px var(--space-4); border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); transition: var(--transition); background: none; border: none; text-align: left; cursor: pointer; text-decoration: none; min-height: 48px; }

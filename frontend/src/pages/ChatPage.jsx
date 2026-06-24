@@ -56,6 +56,12 @@ const ChatPage = () => {
 
   useEffect(() => { fetchConversations(); }, [fetchConversations, unreadCount]);
 
+  // ── Lock body scrolling for app-like chat experience ───────────────────────
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   // ── Fetch message history when partner changes ──────────────────────────────
   useEffect(() => {
     if (!activePartnerId) {
@@ -486,9 +492,13 @@ const ChatPage = () => {
         @media(max-width:768px){
           .hide-lg { display:flex; }
           .chat-page { 
-            margin-top: 64px; 
-            height: calc(100vh - 64px); 
-            height: calc(100dvh - 64px); 
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: auto;
+            margin-top: 0;
           }
           
           /* Mobile Conversions List View */
