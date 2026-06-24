@@ -59,6 +59,7 @@ const ProfilePage = () => {
     try {
       const res = await API.post('/profile/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setProfile(prev => ({ ...prev, avatar_url: res.data.user.avatar_url }));
+      updateUser(res.data.user);
       toast.success('Avatar updated!');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to upload avatar');

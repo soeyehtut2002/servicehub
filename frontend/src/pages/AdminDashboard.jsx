@@ -343,7 +343,13 @@ const AdminDashboard = () => {
                       <tr key={u.id}>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                            <div className="avatar" style={{ width: 32, height: 32, fontSize: '.75rem', background: 'var(--gradient-primary)' }}>{u.name[0]?.toUpperCase()}</div>
+                            <div className="avatar" style={{ width: 32, height: 32, fontSize: '.75rem', background: 'var(--gradient-primary)', overflow: 'hidden' }}>
+                              {u.avatar_url ? (
+                                <img src={resolveUploadUrl(u.avatar_url)} alt={u.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                u.name[0]?.toUpperCase()
+                              )}
+                            </div>
                             <Link
                               to={`/profile/${u.id}`}
                               style={{ fontWeight: 700, color: 'var(--primary)', textDecoration: 'none' }}
@@ -542,11 +548,19 @@ const AdminDashboard = () => {
                           onClick={() => openThread(conv)}
                         >
                           <div className="adm-conv-avatars">
-                            <div className="adm-conv-av" style={{ background: `${ROLE_COLORS[conv.user_a_role]}30`, color: ROLE_COLORS[conv.user_a_role] }}>
-                              {conv.user_a_name[0]?.toUpperCase()}
+                            <div className="adm-conv-av" style={{ background: `${ROLE_COLORS[conv.user_a_role]}30`, color: ROLE_COLORS[conv.user_a_role], overflow: 'hidden' }}>
+                              {conv.user_a_avatar ? (
+                                <img src={resolveUploadUrl(conv.user_a_avatar)} alt={conv.user_a_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                conv.user_a_name[0]?.toUpperCase()
+                              )}
                             </div>
-                            <div className="adm-conv-av" style={{ background: `${ROLE_COLORS[conv.user_b_role]}30`, color: ROLE_COLORS[conv.user_b_role], marginLeft: -8 }}>
-                              {conv.user_b_name[0]?.toUpperCase()}
+                            <div className="adm-conv-av" style={{ background: `${ROLE_COLORS[conv.user_b_role]}30`, color: ROLE_COLORS[conv.user_b_role], marginLeft: -8, overflow: 'hidden' }}>
+                              {conv.user_b_avatar ? (
+                                <img src={resolveUploadUrl(conv.user_b_avatar)} alt={conv.user_b_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                conv.user_b_name[0]?.toUpperCase()
+                              )}
                             </div>
                           </div>
                           <div className="adm-conv-info">
@@ -613,8 +627,12 @@ const AdminDashboard = () => {
                             const roleColor = ROLE_COLORS[msg.sender_role] || '#ccc';
                             return (
                               <div key={msg.id} className={`adm-msg-row ${isA ? 'row-left' : 'row-right'}`}>
-                                <div className="adm-msg-av" style={{ background: `${roleColor}25`, color: roleColor }}>
-                                  {msg.sender_name[0]?.toUpperCase()}
+                                <div className="adm-msg-av" style={{ background: `${roleColor}25`, color: roleColor, overflow: 'hidden' }}>
+                                  {msg.sender_avatar ? (
+                                    <img src={resolveUploadUrl(msg.sender_avatar)} alt={msg.sender_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ) : (
+                                    msg.sender_name[0]?.toUpperCase()
+                                  )}
                                 </div>
                                 <div className="adm-msg-body">
                                   <div className="adm-msg-meta">
@@ -792,8 +810,12 @@ const AdminDashboard = () => {
                   const roleColor = isCustomer ? ROLE_COLORS.customer : ROLE_COLORS.provider;
                   return (
                     <div key={msg.id} className={`adm-msg-row ${isCustomer ? 'row-left' : 'row-right'}`}>
-                      <div className="adm-msg-av" style={{ background: `${roleColor}22`, color: roleColor }}>
-                        {msg.sender_name[0]?.toUpperCase()}
+                      <div className="adm-msg-av" style={{ background: `${roleColor}22`, color: roleColor, overflow: 'hidden' }}>
+                        {msg.sender_avatar ? (
+                          <img src={resolveUploadUrl(msg.sender_avatar)} alt={msg.sender_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          msg.sender_name[0]?.toUpperCase()
+                        )}
                       </div>
                       <div className="adm-msg-body">
                         <div className="adm-msg-meta">

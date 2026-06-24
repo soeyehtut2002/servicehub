@@ -505,7 +505,17 @@ const ServiceDetail = () => {
                 return filtered.map((r) => (
                   <div key={r.id} className="card review-card">
                     <div className="review-header">
-                      <div className="avatar">{r.customer_name?.[0]?.toUpperCase()}</div>
+                      <div className="avatar" style={{ overflow: 'hidden' }}>
+                        {r.customer_avatar ? (
+                          <img
+                            src={r.customer_avatar.startsWith('/uploads') ? `${BASE}${r.customer_avatar}` : r.customer_avatar}
+                            alt={r.customer_name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          r.customer_name?.[0]?.toUpperCase()
+                        )}
+                      </div>
                       <div>
                         <p className="review-author">{r.customer_name}</p>
                         <p className="review-date">

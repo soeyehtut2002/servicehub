@@ -8,6 +8,7 @@ import SearchAutocomplete from './SearchAutocomplete';
 import NotificationBell from './NotificationBell';
 import toast from 'react-hot-toast';
 import { LayoutDashboard, User, MessageSquare, Plus, LogOut, ChevronDown, ChevronUp, Sun, Moon, Globe, Menu, X } from 'lucide-react';
+import { BASE_URL } from '../config';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -65,6 +66,17 @@ const Navbar = () => {
   };
 
   const getInitials = (name) => name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
+  const renderAvatar = (avatarUrl, name, sizeClass = '', extraStyle = {}) => {
+    if (avatarUrl) {
+      const src = avatarUrl.startsWith('/uploads') ? `${BASE_URL}${avatarUrl}` : avatarUrl;
+      return (
+        <div className={`avatar ${sizeClass}`} style={{ ...extraStyle, overflow: 'hidden' }}>
+          <img src={src} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+      );
+    }
+    return <div className={`avatar ${sizeClass}`} style={extraStyle}>{getInitials(name)}</div>;
+  };
   const currentLang = languages.find(l => l.code === lang);
 
   return (
@@ -139,14 +151,14 @@ const Navbar = () => {
           {user ? (
             <div className="user-menu nb-desktop" ref={userMenuRef}>
               <button className="user-trigger" onClick={() => setUserMenuOpen(!userMenuOpen)}>
-                <div className="avatar avatar-sm">{getInitials(user.name)}</div>
+                {renderAvatar(user.avatar_url, user.name, 'avatar-sm')}
                 <span className="user-name">{user.name.split(' ')[0]}</span>
                 <span className="chevron">{userMenuOpen ? <ChevronUp size={13} strokeWidth={2.5}/> : <ChevronDown size={13} strokeWidth={2.5}/>}</span>
               </button>
               {userMenuOpen && (
                 <div className="dropdown-menu">
                   <div className="dropdown-header">
-                    <div className="avatar avatar-lg">{getInitials(user.name)}</div>
+                    {renderAvatar(user.avatar_url, user.name, 'avatar-lg')}
                     <div>
                       <p className="dropdown-name">{user.name}</p>
                       <p className="dropdown-role">{user.role}</p>
@@ -225,7 +237,7 @@ const Navbar = () => {
               )}
               <div className="mobile-divider" />
               <div className="mobile-user-info">
-                <div className="avatar" style={{width:36,height:36,fontSize:'0.85rem',flexShrink:0}}>{getInitials(user.name)}</div>
+                {renderAvatar(user.avatar_url, user.name, '', {width:36, height:36, fontSize:'0.85rem', flexShrink:0})}
                 <div style={{minWidth:0}}>
                   <p style={{fontWeight:700,fontSize:'0.9rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user.name}</p>
                   <p style={{fontSize:'0.75rem',color:'var(--text-muted)',textTransform:'capitalize'}}>{user.role}</p>

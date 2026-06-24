@@ -142,7 +142,7 @@ const ChatPage = () => {
   }, {});
 
   const partnerAvatar = partner?.avatar_url
-    ? `${BASE_URL}${partner.avatar_url}`
+    ? (partner.avatar_url.startsWith('http') ? partner.avatar_url : `${BASE_URL}${partner.avatar_url}`)
     : null;
 
   return (
@@ -178,7 +178,7 @@ const ChatPage = () => {
                   >
                     <div className="conv-avatar-wrap">
                       {conv.partner_avatar
-                        ? <img src={`${BASE_URL}${conv.partner_avatar}`} alt="" className="conv-avatar-img" />
+                        ? <img src={conv.partner_avatar.startsWith('http') ? conv.partner_avatar : `${BASE_URL}${conv.partner_avatar}`} alt="" className="conv-avatar-img" />
                         : <div className="conv-avatar-placeholder">{conv.partner_name?.[0]?.toUpperCase()}</div>
                       }
                       <span className={`online-dot ${online ? 'online' : 'offline'}`} />
@@ -268,7 +268,7 @@ const ChatPage = () => {
                           {!isMine && isFirst && (
                             <div className="msg-avatar-col">
                               {partner?.avatar_url
-                                ? <img src={`${BASE_URL}${partner.avatar_url}`} alt="" className="msg-avatar" />
+                                ? <img src={partner.avatar_url.startsWith('http') ? partner.avatar_url : `${BASE_URL}${partner.avatar_url}`} alt="" className="msg-avatar" />
                                 : <div className="msg-avatar placeholder">{partner?.name?.[0]?.toUpperCase()}</div>
                               }
                             </div>

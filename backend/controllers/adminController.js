@@ -47,7 +47,7 @@ const getStats = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT id, name, email, role, phone, location, is_verified, is_active, created_at
+      `SELECT id, name, email, role, phone, location, avatar_url, is_verified, is_active, created_at
        FROM users ORDER BY created_at DESC`
     );
     res.status(200).json(result.rows);
