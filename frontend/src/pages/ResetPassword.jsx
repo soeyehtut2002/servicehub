@@ -38,64 +38,73 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-      <div style={{ width: '100%', maxWidth: 420, padding: 'var(--space-6)' }}>
-        <div className="card" style={{ padding: 'var(--space-8)' }}>
-          <div style={{ textAlign: 'center', marginBottom: 'var(--space-8)' }}>
-            <div style={{ display:'flex', justifyContent:'center', marginBottom:'var(--space-3)', color:'var(--primary)', opacity:0.85 }}><Lock size={42} strokeWidth={1.5} /></div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 'var(--space-2)' }}>Reset Password</h1>
-            <p className="text-muted" style={{ fontSize: '0.875rem' }}>Enter your new password below</p>
-          </div>
+    <div className="auth-page">
+      <div className="auth-glow" />
+      <div className="auth-card">
+        <div style={{ textAlign: 'center', marginBottom: 'var(--space-8)' }}>
+          <div style={{ display:'flex', justifyContent:'center', marginBottom:'var(--space-3)', color:'var(--primary)', opacity:0.85 }}><Lock size={42} strokeWidth={1.5} /></div>
+          <h1 className="auth-title" style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 'var(--space-2)' }}>Reset Password</h1>
+          <p className="auth-subtitle text-muted" style={{ fontSize: '0.875rem' }}>Enter your new password below</p>
+        </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-            <div className="form-group">
-              <label className="form-label">New Password</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  className="input"
-                  placeholder="Min. 6 characters"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  autoFocus
-                  style={{ paddingRight: 44 }}
-                />
-                <button type="button" onClick={() => setShowPass(v => !v)}
-                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '1rem' }}>
-                  {showPass ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
-                </button>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Confirm Password</label>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+          <div className="form-group">
+            <label className="form-label">New Password</label>
+            <div style={{ position: 'relative' }}>
               <input
                 type={showPass ? 'text' : 'password'}
                 className="input"
-                placeholder="Repeat your password"
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
+                placeholder="Min. 6 characters"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
                 required
+                autoFocus
+                style={{ paddingRight: 44 }}
               />
+              <button type="button" onClick={() => setShowPass(v => !v)}
+                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '1rem' }}>
+                {showPass ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
+              </button>
             </div>
+          </div>
 
-            {password && confirm && password !== confirm && (
-              <div className="alert alert-error" style={{ fontSize: '0.8rem', padding: 'var(--space-3)' }}>
-                Passwords do not match
-              </div>
-            )}
+          <div className="form-group">
+            <label className="form-label">Confirm Password</label>
+            <input
+              type={showPass ? 'text' : 'password'}
+              className="input"
+              placeholder="Repeat your password"
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              required
+            />
+          </div>
 
-            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-              {loading ? 'Resetting...' : 'Reset Password'}
-            </button>
+          {password && confirm && password !== confirm && (
+            <div className="alert alert-error" style={{ fontSize: '0.8rem', padding: 'var(--space-3)' }}>
+              Passwords do not match
+            </div>
+          )}
 
-            <p style={{ textAlign: 'center', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-              <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 600 }}>← Back to Sign In</Link>
-            </p>
-          </form>
-        </div>
+          <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+            {loading ? 'Resetting...' : 'Reset Password'}
+          </button>
+
+          <p style={{ textAlign: 'center', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+            <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 600 }}>← Back to Sign In</Link>
+          </p>
+        </form>
       </div>
+      <style>{`
+        .auth-page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:var(--space-6); position:relative; background:var(--bg-base); padding-top:96px; }
+        .auth-glow { position:fixed; inset:0; background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(108,99,255,.12) 0%,transparent 70%); pointer-events:none; }
+        .auth-card { position:relative; width:100%; max-width:440px; background:var(--gradient-card); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-10); box-shadow:var(--shadow-lg),var(--shadow-glow); animation:slideUp .4s ease; }
+        @media(max-width:480px){
+          .auth-page { padding: var(--space-4) var(--space-3) var(--space-6); padding-top: 80px; }
+          .auth-card { padding: var(--space-6) var(--space-4); border-radius: var(--radius-lg); }
+          .auth-title { font-size: 1.35rem !important; }
+        }
+      `}</style>
     </div>
   );
 };

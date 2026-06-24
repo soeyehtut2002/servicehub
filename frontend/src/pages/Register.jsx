@@ -153,7 +153,16 @@ const Register = () => {
         .at-desc { font-size:.75rem; color:var(--text-muted); margin-top:2px; }
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); }
         .auth-footer { text-align:center; margin-top:var(--space-6); font-size:.875rem; color:var(--text-secondary); }
-        @media(max-width:520px){ .auth-card{padding:var(--space-6);} .form-row{grid-template-columns:1fr;} }
+        @media(max-width:520px){
+          .auth-page { padding: var(--space-4) var(--space-3) var(--space-6); padding-top: 80px; }
+          .auth-card { padding: var(--space-6) var(--space-4); border-radius: var(--radius-lg); }
+          .auth-title { font-size: 1.5rem; }
+          .auth-header { margin-bottom: var(--space-5); }
+          .form-row { grid-template-columns: 1fr; gap: var(--space-4); }
+        }
+        @media(max-width:400px){
+          .role-selector { grid-template-columns: 1fr; gap: var(--space-2); }
+        }
       `}</style>
     </div>
   );

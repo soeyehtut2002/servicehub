@@ -102,6 +102,15 @@ const ChatPage = () => {
     }
   }, [liveMsgs.length]);
 
+  // ── Auto-adjust input textarea height based on content ──────────────────────
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    }
+  }, [text]);
+
   // ── Send ─────────────────────────────────────────────────────────────────────
   const handleSend = () => {
     const content = text.trim();
@@ -282,7 +291,7 @@ const ChatPage = () => {
               <textarea
                 ref={textareaRef}
                 className="chat-input"
-                placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
+                placeholder="Type a message…"
                 value={text}
                 onChange={e => setText(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -309,6 +318,7 @@ const ChatPage = () => {
         .chat-page {
           display: flex;
           height: calc(100vh - 72px);
+          height: calc(100dvh - 72px);
           margin-top: 72px;
           background: var(--bg-base);
           overflow: hidden;
@@ -354,7 +364,7 @@ const ChatPage = () => {
         .conv-name { font-weight:700; font-size:.9rem; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .conv-time { font-size:.72rem; color:var(--text-muted); flex-shrink:0; }
         .conv-preview-row { display:flex; justify-content:space-between; align-items:center; margin-top:2px; }
-        .conv-preview { font-size:.8rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+        .conv-preview { flex:1; min-width:0; font-size:.8rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-right:var(--space-2); }
         .conv-unread { background:var(--primary); color:#fff; font-size:.7rem; font-weight:700; border-radius:10px; padding:1px 7px; flex-shrink:0; }
         .conv-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-2); color:var(--text-muted); padding:var(--space-8); text-align:center; }
 
@@ -453,7 +463,7 @@ const ChatPage = () => {
         }
         .chat-input {
           flex:1; background:rgba(255,255,255,.06); border:1px solid var(--border);
-          border-radius:var(--radius-full); color:var(--text-primary); font-size:.9rem;
+          border-radius:20px; color:var(--text-primary); font-size:.9rem;
           padding:10px 18px; outline:none; resize:none; max-height:120px;
           font-family:inherit; transition:var(--transition); line-height:1.5;
           scrollbar-width:none;
@@ -475,7 +485,11 @@ const ChatPage = () => {
         .hide-lg { display:none; }
         @media(max-width:768px){
           .hide-lg { display:flex; }
-          .chat-page { margin-top: 64px; height: calc(100vh - 64px); }
+          .chat-page { 
+            margin-top: 64px; 
+            height: calc(100vh - 64px); 
+            height: calc(100dvh - 64px); 
+          }
           
           /* Mobile Conversions List View */
           .chat-page.list-chat .chat-sidebar {
@@ -499,15 +513,17 @@ const ChatPage = () => {
             width: 100% !important;
           }
 
-          .msg-bubble-wrap { max-width:85%; }
+          .msg-bubble-wrap { max-width: calc(100% - 48px); }
           .chat-header-action { display: none; }
           .sidebar-open-btn { margin-top: var(--space-2); }
+          .chat-input { font-size: 16px !important; }
         }
         @media(max-width:480px){
+          .chat-header { padding: var(--space-3) var(--space-4); gap: var(--space-2); }
           .msg-bubble { font-size: 0.85rem; padding: 8px 12px; }
           .chat-messages-area { padding: var(--space-3); }
           .chat-input-area { padding: var(--space-3); gap: var(--space-2); }
-          .chat-input { font-size: 0.85rem; padding: 8px 14px; }
+          .chat-input { font-size: 16px !important; padding: 8px 14px; }
           .chat-send-btn { width: 40px; height: 40px; }
         }
       `}</style>
