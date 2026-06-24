@@ -18,6 +18,7 @@ const timeSlotRoutes     = require('./routes/timeSlotRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const scheduleRoutes     = require('./routes/scheduleRoutes');
 const currencyRoutes     = require('./routes/currencyRoutes');
+const adRoutes           = require('./routes/adRoutes');
 const socketState        = require('./services/socketState');
 
 const app        = express();
@@ -170,6 +171,7 @@ app.use('/api/slots',         timeSlotRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/schedule',      scheduleRoutes);
 app.use('/api/currency',      currencyRoutes);
+app.use('/api/ads',           adRoutes);
 
 
 // ─── Health check ─────────────────────────────────────────────────────────────
@@ -208,3 +210,5 @@ initDb()
     console.error('❌ Database initialization failed. Server NOT started:', err.message);
     process.exit(1);
   });
+
+// Reload triggered by file edit

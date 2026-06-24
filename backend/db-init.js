@@ -191,6 +191,23 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_payments_booking ON payments(booking_id);
+
+-- Advertisements table
+CREATE TABLE IF NOT EXISTS advertisements (
+  id           SERIAL PRIMARY KEY,
+  title        VARCHAR(255) NOT NULL,
+  description  TEXT,
+  image_url    TEXT NOT NULL,
+  logo_url     TEXT,
+  cta_text     VARCHAR(50) DEFAULT 'Learn More',
+  cta_url      TEXT,
+  is_active    BOOLEAN DEFAULT TRUE,
+  start_date   TIMESTAMP,
+  end_date     TIMESTAMP,
+  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_ads_active ON advertisements(is_active, start_date, end_date);
 `;
 
 const providers = [

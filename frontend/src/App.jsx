@@ -6,6 +6,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { LangProvider } from './context/LangContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
+import AdPopup from './components/AdPopup';
 
 import Home                from './pages/Home';
 import Services            from './pages/Services';
@@ -30,6 +31,7 @@ function App() {
           <SocketProvider>
             <BrowserRouter>
               <Navbar />
+              <AdPopup />
 
               <Routes>
                 {/* Public Routes */}

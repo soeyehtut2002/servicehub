@@ -4,7 +4,8 @@ import API from '../api/axios';
 import StatusBadge from '../components/StatusBadge';
 import toast from 'react-hot-toast';
 import { getCurrencyMeta, formatCurrency, formatAllCurrencies } from '../utils/currency';
-import { BarChart2, Users, Wrench, Calendar, Star, MessageSquare, Eye, Lock, Unlock, Trash2, Flag, X, Package, MapPin, FileText, Clock, Tag, ShieldCheck, User, CheckCheck } from 'lucide-react';
+import { resolveUploadUrl } from '../config';
+import { BarChart2, Users, Wrench, Calendar, Star, MessageSquare, Eye, Lock, Unlock, Trash2, Flag, X, Package, MapPin, FileText, Clock, Tag, ShieldCheck, User, CheckCheck, Megaphone } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [tab, setTab] = useState('overview');
@@ -25,12 +26,123 @@ const AdminDashboard = () => {
   // Booking chat modal
   const [bookingChat, setBookingChat] = useState(null); // { booking, messages, loading }
 
+  // Ads state
+  const [ads, setAds] = useState([]);
+  const [editingAd, setEditingAd] = useState(null);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [adForm, setAdForm] = useState({
+    title: '',
+    description: '',
+    image_url: '',
+    logo_url: '',
+    cta_text: 'Learn More',
+    cta_url: '',
+    is_active: true,
+    start_date: '',
+    end_date: '',
+  });
+
   const fetchStats = async () => { try { const r = await API.get('/admin/stats'); setStats(r.data); } catch { toast.error('Failed to load stats'); } };
   const fetchUsers = async () => { try { const r = await API.get('/admin/users'); setUsers(r.data); } catch { toast.error('Failed to load users'); } };
   const fetchServices = async () => { try { const r = await API.get('/admin/services'); setServices(r.data); } catch { toast.error('Failed to load services'); } };
   const fetchBookings = async () => { try { const r = await API.get('/admin/bookings'); setBookings(r.data); } catch { toast.error('Failed to load bookings'); } };
   const fetchReviews = async () => { try { const r = await API.get('/admin/reviews'); setReviews(r.data); } catch { toast.error('Failed to load reviews'); } };
   const fetchChats = async () => { try { const r = await API.get('/admin/chats'); setConversations(r.data); } catch { toast.error('Failed to load conversations'); } };
+  const fetchAds = async () => { try { const r = await API.get('/ads'); setAds(r.data); } catch { toast.error('Failed to load advertisements'); } };
+
+  const handleToggleAd = async (id) => {
+    try {
+      await API.patch(`/ads/${id}/toggle`);
+      toast.success('Advertisement status updated');
+      fetchAds();
+    } catch {
+      toast.error('Failed to update advertisement status');
+    }
+  };
+
+  const handleDeleteAd = async (id) => {
+    if (!confirm('Permanently delete this advertisement?')) return;
+    try {
+      await API.delete(`/ads/${id}`);
+      toast.success('Advertisement deleted');
+      fetchAds();
+    } catch {
+      toast.error('Failed to delete advertisement');
+    }
+  };
+
+  const handleOpenCreateAd = () => {
+    setEditingAd(null);
+    setAdForm({
+      title: '',
+      description: '',
+      image_url: '',
+      logo_url: '',
+      cta_text: 'Learn More',
+      cta_url: '',
+      is_active: true,
+      start_date: '',
+      end_date: '',
+    });
+    setShowAdModal(true);
+  };
+
+  const handleOpenEditAd = (ad) => {
+    setEditingAd(ad);
+    setAdForm({
+      title: ad.title || '',
+      description: ad.description || '',
+      image_url: ad.image_url || '',
+      logo_url: ad.logo_url || '',
+      cta_text: ad.cta_text || 'Learn More',
+      cta_url: ad.cta_url || '',
+      is_active: ad.is_active !== undefined ? ad.is_active : true,
+      start_date: ad.start_date ? new Date(ad.start_date).toISOString().slice(0, 16) : '',
+      end_date: ad.end_date ? new Date(ad.end_date).toISOString().slice(0, 16) : '',
+    });
+    setShowAdModal(true);
+  };
+
+  const handleAdSubmit = async (e) => {
+    e.preventDefault();
+    if (!adForm.title || !adForm.image_url) {
+      toast.error('Title and Image URL are required');
+      return;
+    }
+    try {
+      const data = {
+        ...adForm,
+        start_date: adForm.start_date ? new Date(adForm.start_date).toISOString() : null,
+        end_date: adForm.end_date ? new Date(adForm.end_date).toISOString() : null,
+      };
+      if (editingAd) {
+        await API.put(`/ads/${editingAd.id}`, data);
+        toast.success('Advertisement updated successfully');
+      } else {
+        await API.post('/ads', data);
+        toast.success('Advertisement created successfully');
+      }
+      setShowAdModal(false);
+      fetchAds();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to save advertisement');
+    }
+  };
+
+  const handleFileUpload = async (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    const loadingToast = toast.loading('Uploading image...');
+    try {
+      const res = await API.post('/ads/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setAdForm(prev => ({ ...prev, [field]: res.data.url }));
+      toast.success('Uploaded successfully', { id: loadingToast });
+    } catch (err) {
+      toast.error('Upload failed', { id: loadingToast });
+    }
+  };
 
   const openThread = async (conv) => {
     setActiveThread(conv);
@@ -62,6 +174,7 @@ const AdminDashboard = () => {
     if (tab === 'bookings') fetchBookings();
     if (tab === 'reviews') fetchReviews();
     if (tab === 'chats') fetchChats();
+    if (tab === 'ads') fetchAds();
   }, [tab]);
 
   const handleToggleUser = async (id) => {
@@ -116,6 +229,7 @@ const AdminDashboard = () => {
     { key: 'bookings', Icon: Calendar,      label: 'Bookings' },
     { key: 'reviews',  Icon: Star,          label: 'Reviews' },
     { key: 'chats',    Icon: MessageSquare, label: 'Chats' },
+    { key: 'ads',      Icon: Megaphone,     label: 'Ads' },
   ];
 
   return (
@@ -527,6 +641,128 @@ const AdminDashboard = () => {
               </div>
             )}
 
+            {/* ── Ads ──────────────────────────────────────────── */}
+            {tab === 'ads' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Megaphone size={20} color="var(--primary)" /> Advertisement Banners
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Manage compact home screen popups and scheduling</p>
+                  </div>
+                  <button className="btn btn-primary" onClick={handleOpenCreateAd} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    + Create Advertisement
+                  </button>
+                </div>
+
+                <div className="table-wrapper">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Preview</th>
+                        <th>Logo</th>
+                        <th>Title &amp; Description</th>
+                        <th>Schedule</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ads.map(ad => {
+                        const now = new Date();
+                        const started = !ad.start_date || new Date(ad.start_date) <= now;
+                        const ended = ad.end_date && new Date(ad.end_date) < now;
+
+                        let statusText = 'Inactive';
+                        let statusClass = 'badge-danger';
+                        if (ad.is_active) {
+                          if (ended) {
+                            statusText = 'Expired';
+                            statusClass = 'badge-muted';
+                          } else if (!started) {
+                            statusText = 'Scheduled';
+                            statusClass = 'badge-primary';
+                          } else {
+                            statusText = 'Active';
+                            statusClass = 'badge-success';
+                          }
+                        }
+
+                        return (
+                          <tr key={ad.id}>
+                            <td>
+                              <img
+                                src={resolveUploadUrl(ad.image_url)}
+                                alt=""
+                                style={{ width: 80, height: 45, objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}
+                              />
+                            </td>
+                            <td>
+                              {ad.logo_url ? (
+                                <img
+                                  src={resolveUploadUrl(ad.logo_url)}
+                                  alt=""
+                                  style={{ width: 30, height: 30, objectFit: 'cover', borderRadius: '50%', border: '1px solid var(--border)' }}
+                                />
+                              ) : (
+                                <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <Megaphone size={12} color="var(--text-muted)" />
+                                </div>
+                              )}
+                            </td>
+                            <td>
+                              <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{ad.title}</div>
+                              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2, maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {ad.description || '—'}
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>
+                                {ad.start_date ? new Date(ad.start_date).toLocaleDateString() : 'Immediate'}
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                                to {ad.end_date ? new Date(ad.end_date).toLocaleDateString() : 'Indefinite'}
+                              </div>
+                            </td>
+                            <td>
+                              <button
+                                className={`btn btn-sm ${ad.is_active ? 'btn-success' : 'btn-outline'}`}
+                                onClick={() => handleToggleAd(ad.id)}
+                                style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                              >
+                                <span className={`badge ${statusClass}`} style={{ border: 'none', padding: 0 }}>
+                                  {statusText}
+                                </span>
+                              </button>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                                <button className="btn btn-ghost btn-sm" onClick={() => handleOpenEditAd(ad)}>
+                                  Edit
+                                </button>
+                                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteAd(ad.id)} style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                  <Trash2 size={13} strokeWidth={2} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {ads.length === 0 && (
+                    <div className="empty-state">
+                      <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center', opacity: 0.4 }}>
+                        <Megaphone size={40} strokeWidth={1.5} />
+                      </div>
+                      <p>No advertisements created yet</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
           </>
         )}
       </div>
@@ -603,6 +839,170 @@ const AdminDashboard = () => {
               )}
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* ── Advertisement Modal ─────────────────────────────────────────────── */}
+      {showAdModal && (
+        <div className="bcm-overlay" onClick={() => setShowAdModal(false)}>
+          <div className="bcm-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
+            {/* Header */}
+            <div className="bcm-header">
+              <div className="bcm-header-left">
+                <span className="bcm-icon" style={{ display: 'flex', alignItems: 'center' }}><Megaphone size={22} strokeWidth={1.8} /></span>
+                <div>
+                  <div className="bcm-title">{editingAd ? 'Edit Advertisement' : 'Create Advertisement'}</div>
+                  <div className="bcm-subtitle" style={{ color: 'var(--text-muted)' }}>
+                    {editingAd ? 'Modify existing campaign banner properties' : 'Configure a new promotional campaign banner'}
+                  </div>
+                </div>
+              </div>
+              <button className="bcm-close" onClick={() => setShowAdModal(false)}><X size={16} strokeWidth={2.5} /></button>
+            </div>
+
+            {/* Scrollable Form Body */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6)' }}>
+              <form onSubmit={handleAdSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                {/* Title */}
+                <div className="form-group">
+                  <label className="form-label">Campaign Title *</label>
+                  <input
+                    className="input"
+                    value={adForm.title}
+                    onChange={e => setAdForm({ ...adForm, title: e.target.value })}
+                    placeholder="e.g. 50% Off Plumbing Services"
+                    required
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="form-group">
+                  <label className="form-label">Short Description</label>
+                  <textarea
+                    className="input"
+                    rows={2}
+                    value={adForm.description}
+                    onChange={e => setAdForm({ ...adForm, description: e.target.value })}
+                    placeholder="Brief details about the promotion..."
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+
+                {/* Banner Image URL & File Upload */}
+                <div className="form-group">
+                  <label className="form-label">Banner Image (Cover) *</label>
+                  <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                    <input
+                      className="input"
+                      value={adForm.image_url}
+                      onChange={e => setAdForm({ ...adForm, image_url: e.target.value })}
+                      placeholder="/uploads/banner.jpg or https://..."
+                      required
+                      style={{ flex: 1 }}
+                    />
+                    <label className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', margin: 0, padding: '7px 14px' }}>
+                      Upload File
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={e => handleFileUpload(e, 'image_url')}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Company Logo URL & File Upload */}
+                <div className="form-group">
+                  <label className="form-label">Company Logo (Optional)</label>
+                  <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                    <input
+                      className="input"
+                      value={adForm.logo_url}
+                      onChange={e => setAdForm({ ...adForm, logo_url: e.target.value })}
+                      placeholder="/uploads/logo.jpg or https://..."
+                      style={{ flex: 1 }}
+                    />
+                    <label className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', margin: 0, padding: '7px 14px' }}>
+                      Upload File
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={e => handleFileUpload(e, 'logo_url')}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Row for CTA Text & URL */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                  <div className="form-group">
+                    <label className="form-label">CTA Button Text</label>
+                    <input
+                      className="input"
+                      value={adForm.cta_text}
+                      onChange={e => setAdForm({ ...adForm, cta_text: e.target.value })}
+                      placeholder="e.g. Learn More"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">CTA Link / Route</label>
+                    <input
+                      className="input"
+                      value={adForm.cta_url}
+                      onChange={e => setAdForm({ ...adForm, cta_url: e.target.value })}
+                      placeholder="e.g. /services/5 or http://..."
+                    />
+                  </div>
+                </div>
+
+                {/* Scheduling: Start & End Date */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                  <div className="form-group">
+                    <label className="form-label">Start Date (Optional)</label>
+                    <input
+                      type="datetime-local"
+                      className="input"
+                      value={adForm.start_date}
+                      onChange={e => setAdForm({ ...adForm, start_date: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">End Date (Optional)</label>
+                    <input
+                      type="datetime-local"
+                      className="input"
+                      value={adForm.end_date}
+                      onChange={e => setAdForm({ ...adForm, end_date: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Is Active Checkbox */}
+                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                  <input
+                    type="checkbox"
+                    id="ad-is-active"
+                    checked={adForm.is_active}
+                    onChange={e => setAdForm({ ...adForm, is_active: e.target.checked })}
+                    style={{ width: 16, height: 16, cursor: 'pointer' }}
+                  />
+                  <label htmlFor="ad-is-active" style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', cursor: 'pointer' }}>
+                    Publish immediately (Is Active)
+                  </label>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)', marginTop: 'var(--space-4)' }}>
+                  <button type="button" className="btn btn-outline" onClick={() => setShowAdModal(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary">
+                    {editingAd ? 'Update Ad' : 'Create Ad'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
