@@ -628,14 +628,16 @@ const ServiceDetail = () => {
       <style>{`
         .detail-hero { position:relative; height:300px; overflow:hidden; margin-bottom:0; }
         .detail-hero-img { width:100%; height:100%; object-fit:cover; }
-        .detail-hero-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,20,.9) 0%,rgba(10,10,20,.3) 100%); }
+        .detail-hero-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,20,.95) 0%,rgba(10,10,20,.4) 100%); }
         .detail-hero-content { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:100%; padding-bottom:var(--space-6); display:flex; flex-direction:column; gap:var(--space-2); }
-        .detail-title { font-size:clamp(1.3rem,3vw,2.5rem); font-weight:900; text-shadow:0 2px 8px rgba(0,0,0,.5); }
-        .detail-meta { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; font-size:.875rem; color:var(--text-secondary); }
-        .detail-rating-val { font-weight:700; color:var(--text-primary); }
-        .detail-reviews { color:var(--text-muted); }
-        .detail-sep { color:var(--text-muted); }
-        .detail-photo-badge { background:rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.2); border-radius:var(--radius-full); padding:2px 10px; font-size:.75rem; backdrop-filter:blur(4px); color:#fff; }
+        .detail-title { font-size:clamp(1.3rem,3vw,2.5rem); font-weight:900; color:#ffffff; text-shadow:0 2px 12px rgba(0,0,0,.8); }
+        .detail-meta { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; font-size:.875rem; color:rgba(255,255,255,.8); text-shadow:0 1px 4px rgba(0,0,0,.5); }
+        .detail-rating-val { font-weight:700; color:#ffffff; }
+        .detail-reviews { color:rgba(255,255,255,.6); }
+        .detail-sep { color:rgba(255,255,255,.4); }
+        .detail-photo-badge { background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.25); border-radius:var(--radius-full); padding:2px 10px; font-size:.75rem; backdrop-filter:blur(4px); color:#fff; }
+        .detail-hero-content .badge-primary { background:var(--primary); color:#ffffff; border-color:transparent; font-weight:700; box-shadow:0 2px 10px rgba(14,165,233,.3); }
+        .detail-hero-content .verified-badge { background:rgba(16,185,129,.2); color:#10B981; border-color:rgba(16,185,129,.4); }
         .detail-layout { display:grid; grid-template-columns:1fr 340px; gap:var(--space-8); padding-top:var(--space-8); padding-bottom:var(--space-16); align-items:start; }
         .booking-card { background:var(--gradient-card); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-6); display:flex; flex-direction:column; gap:var(--space-5); position:sticky; top:88px; box-shadow:var(--shadow-card); }
         .booking-price { font-size:1.9rem; font-weight:900; color:var(--success); display:flex; align-items:baseline; gap:4px; flex-wrap:wrap; }
