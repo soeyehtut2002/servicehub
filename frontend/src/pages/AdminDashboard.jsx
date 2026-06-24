@@ -818,8 +818,8 @@ const AdminDashboard = () => {
 
       {/* ── Advertisement Modal ─────────────────────────────────────────────── */}
       {showAdModal && (
-        <div className="bcm-overlay" onClick={() => setShowAdModal(false)}>
-          <div className="bcm-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
+        <div className="bcm-overlay ad-modal-overlay" onClick={() => setShowAdModal(false)}>
+          <div className="bcm-modal ad-form-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 500 }}>
             {/* Header */}
             <div className="bcm-header">
               <div className="bcm-header-left">
@@ -1045,8 +1045,8 @@ const AdminDashboard = () => {
         /* ── Ads Admin Card Grid ──────────────────────────── */
         .ads-header-row { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-4); margin-bottom:var(--space-6); flex-wrap:wrap; }
         .ads-card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:var(--space-5); }
-        .ad-admin-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; display:flex; flex-direction:column; transition:var(--transition); }
-        .ad-admin-card:hover { border-color:var(--primary); box-shadow:0 0 0 1px var(--primary-glow); transform:translateY(-2px); }
+        .ad-admin-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; display:flex; flex-direction:column; transition:border-color 0.2s, box-shadow 0.2s; }
+        .ad-admin-card:hover { border-color:var(--primary); box-shadow:0 0 0 1px var(--primary-glow); }
         .ad-admin-img-wrap { position:relative; width:100%; height:0; padding-bottom:56.25%; background:#000; overflow:hidden; flex-shrink:0; }
         .ad-admin-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
         .ad-admin-status-badge { position:absolute; top:8px; right:8px; font-size:0.65rem !important; font-weight:700 !important; border:none !important; }
@@ -1073,6 +1073,34 @@ const AdminDashboard = () => {
           .ad-upload-btn { width:100%; justify-content:center; }
           .ad-form-actions { justify-content:stretch; }
           .ad-form-actions .btn { flex:1; justify-content:center; }
+        }
+        /* ── Ad form modal overrides (no bounce) ──────────── */
+        .ad-modal-overlay { align-items:center; }
+        .ad-form-modal {
+          max-height: 90dvh;
+          max-height: 90vh; /* fallback */
+          animation: adModalIn 0.22s ease-out;
+        }
+        @keyframes adModalIn {
+          from { opacity:0; transform:translateY(16px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        /* On mobile anchor to bottom so keyboard open won't jump */
+        @media(max-width:600px) {
+          .ad-modal-overlay { align-items:flex-end; padding:0; }
+          .ad-form-modal {
+            max-width:100% !important;
+            width:100%;
+            border-bottom-left-radius:0;
+            border-bottom-right-radius:0;
+            max-height:92dvh;
+            max-height:92vh;
+            animation: adModalInMobile 0.22s ease-out;
+          }
+          @keyframes adModalInMobile {
+            from { opacity:0; transform:translateY(40px); }
+            to   { opacity:1; transform:translateY(0); }
+          }
         }
       `}</style>
     </div>
