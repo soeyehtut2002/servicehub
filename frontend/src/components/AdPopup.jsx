@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { resolveUploadUrl } from '../config';
-import { X, Megaphone, Check } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 
 const AdPopup = () => {
   const [ad, setAd] = useState(null);
@@ -13,37 +13,31 @@ const AdPopup = () => {
   useEffect(() => {
     const fetchAd = async () => {
       try {
-        // Check local storage for suppression
         const suppressUntil = localStorage.getItem('servicehub_ad_suppress_until');
-        if (suppressUntil && new Date().getTime() < parseInt(suppressUntil)) {
-          return; // Suppressed
-        }
+        if (suppressUntil && new Date().getTime() < parseInt(suppressUntil)) return;
 
         const res = await API.get('/ads/active');
         if (res.data && res.data.ad) {
           setAd(res.data.ad);
-          // Show popup after a small delay (800ms) for premium feel
-          setTimeout(() => setVisible(true), 800);
+          // Show fast — 200ms after page load
+          setTimeout(() => setVisible(true), 200);
         }
       } catch (err) {
         console.error('Failed to load active advertisement:', err.message);
       }
     };
-
     fetchAd();
   }, []);
 
   const handleClose = () => {
     if (dontShowAgain) {
-      // Set suppression in local storage for 3 days (259200000 ms)
       const suppressTime = new Date().getTime() + 3 * 24 * 60 * 60 * 1000;
       localStorage.setItem('servicehub_ad_suppress_until', suppressTime.toString());
     }
     setVisible(false);
   };
 
-  const handleCtaClick = () => {
-    handleClose();
+  const handleImageClick = () => {
     if (ad && ad.cta_url) {
       if (ad.cta_url.startsWith('http')) {
         window.open(ad.cta_url, '_blank', 'noopener,noreferrer');
@@ -51,116 +45,153 @@ const AdPopup = () => {
         navigate(ad.cta_url);
       }
     }
+    handleClose();
   };
 
   if (!ad || !visible) return null;
 
+  const isClickable = !!(ad.cta_url);
+
   return (
     <div className="ad-overlay" onClick={handleClose}>
       <div className="ad-modal" onClick={e => e.stopPropagation()}>
-        {/* Close Button */}
-        <button className="ad-close-btn" onClick={handleClose} aria-label="Close ad">
-          <X size={16} strokeWidth={2.5} />
+
+        {/* ── Close button (top-right) ─────────────────────── */}
+        <button className="ad-close-btn" onClick={handleClose} aria-label="Close advertisement">
+          <X size={15} strokeWidth={2.5} />
         </button>
 
-        {/* Ad Image */}
-        <div className="ad-image-container">
-          <img src={resolveUploadUrl(ad.image_url)} alt={ad.title} className="ad-image" />
-          <div className="ad-category-badge">Sponsored</div>
-        </div>
+        {/* ── "Sponsored" pill (top-left) ──────────────────── */}
+        <div className="ad-sponsored-tag">Sponsored</div>
 
-        {/* Ad Content */}
-        <div className="ad-body">
-          {/* Header row with logo, title */}
-          <div className="ad-header-row">
-            {ad.logo_url ? (
-              <img src={resolveUploadUrl(ad.logo_url)} alt="" className="ad-logo" />
-            ) : (
-              <div className="ad-logo-placeholder">
-                <Megaphone size={16} />
-              </div>
-            )}
-            <div className="ad-header-text">
-              <h3 className="ad-title">{ad.title}</h3>
-              {ad.description && <p className="ad-desc">{ad.description}</p>}
+        {/* ── Banner image — clicking goes to CTA link ─────── */}
+        <div
+          className={`ad-image-container${isClickable ? ' ad-clickable' : ''}`}
+          onClick={isClickable ? handleImageClick : undefined}
+          role={isClickable ? 'button' : undefined}
+          tabIndex={isClickable ? 0 : undefined}
+          onKeyDown={isClickable ? (e) => {
+            if (e.key === 'Enter' || e.key === ' ') handleImageClick();
+          } : undefined}
+          aria-label={isClickable ? `View ${ad.title}` : ad.title}
+        >
+          <img
+            src={resolveUploadUrl(ad.image_url)}
+            alt={ad.title}
+            className="ad-image"
+          />
+          {/* Subtle "Tap to view" hint that fades in on hover */}
+          {isClickable && (
+            <div className="ad-tap-hint">
+              <span>Tap to view →</span>
             </div>
-          </div>
-
-          {/* CTA and Don't Show Option */}
-          <div className="ad-footer">
-            <button className="ad-checkbox-container" onClick={() => setDontShowAgain(v => !v)}>
-              <div className={`ad-checkbox ${dontShowAgain ? 'checked' : ''}`}>
-                {dontShowAgain && <Check size={10} strokeWidth={3} />}
-              </div>
-              <span className="ad-checkbox-label">Don't show again for 3 days</span>
-            </button>
-
-            <button className="btn btn-primary ad-cta-btn" onClick={handleCtaClick}>
-              {ad.cta_text || 'Learn More'}
-            </button>
-          </div>
+          )}
         </div>
+
+        {/* ── "Don't show again" — below the image ─────────── */}
+        <div className="ad-bottom-bar">
+          <button
+            className="ad-dont-show-btn"
+            onClick={() => setDontShowAgain(v => !v)}
+            aria-pressed={dontShowAgain}
+          >
+            <div className={`ad-check-box${dontShowAgain ? ' checked' : ''}`}>
+              {dontShowAgain && <Check size={9} strokeWidth={3.5} />}
+            </div>
+            <span className="ad-dont-show-label">Don't show again for 3 days</span>
+          </button>
+        </div>
+
       </div>
 
       <style>{`
+        /* ── Overlay ──────────────────────────────────── */
         .ad-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(10, 10, 20, 0.72);
-          backdrop-filter: blur(6px);
+          background: rgba(8, 8, 18, 0.78);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
           z-index: 2000;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 16px;
-          animation: adFadeIn 0.25s ease;
+          padding: 20px;
+          animation: adFadeIn 0.18s ease;
         }
 
+        /* ── Modal card ───────────────────────────────── */
         .ad-modal {
           width: 95%;
-          max-width: 460px;
-          background: var(--gradient-card);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-xl);
-          box-shadow: var(--shadow-lg), var(--shadow-glow);
+          max-width: 440px;
+          border-radius: 18px;
           overflow: hidden;
           position: relative;
           display: flex;
           flex-direction: column;
-          animation: adScaleIn 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+          box-shadow:
+            0 24px 64px rgba(0, 0, 0, 0.72),
+            0 0 0 1px rgba(255, 255, 255, 0.07);
+          animation: adScaleIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        /* ── Close button ─────────────────────────────── */
         .ad-close-btn {
           position: absolute;
           top: 10px;
           right: 10px;
-          background: rgba(10, 10, 20, 0.6);
+          background: rgba(8, 8, 18, 0.68);
           color: #fff;
-          border: 1px solid rgba(255, 255, 255, 0.18);
+          border: 1px solid rgba(255, 255, 255, 0.22);
           border-radius: 50%;
-          width: 30px;
-          height: 30px;
+          width: 28px;
+          height: 28px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: var(--transition);
-          z-index: 10;
+          transition: background 0.18s, transform 0.18s;
+          z-index: 20;
         }
         .ad-close-btn:hover {
-          background: rgba(239, 68, 68, 0.9);
+          background: rgba(239, 68, 68, 0.92);
           border-color: transparent;
+          transform: scale(1.1);
         }
 
-        /* 16:9 aspect-ratio image — always fills frame */
+        /* ── Sponsored pill ───────────────────────────── */
+        .ad-sponsored-tag {
+          position: absolute;
+          top: 10px;
+          left: 12px;
+          background: rgba(8, 8, 18, 0.70);
+          color: rgba(255, 255, 255, 0.85);
+          font-size: 0.58rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.09em;
+          padding: 3px 8px;
+          border-radius: 6px;
+          backdrop-filter: blur(4px);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          z-index: 10;
+          pointer-events: none;
+        }
+
+        /* ── Banner image ─────────────────────────────── */
         .ad-image-container {
           position: relative;
           width: 100%;
+          /* 5:3 ratio works well on mobile */
+          padding-bottom: 60%;
           height: 0;
-          padding-bottom: 52%;   /* ~16:9 */
-          background: #000;
+          background: #0a0a14;
           overflow: hidden;
           flex-shrink: 0;
+          display: block;
+        }
+        .ad-image-container.ad-clickable {
+          cursor: pointer;
         }
         .ad-image {
           position: absolute;
@@ -169,145 +200,105 @@ const AdPopup = () => {
           height: 100%;
           object-fit: cover;
           display: block;
+          transition: transform 0.32s ease;
         }
-        .ad-category-badge {
+        .ad-image-container.ad-clickable:hover .ad-image,
+        .ad-image-container.ad-clickable:focus-within .ad-image {
+          transform: scale(1.04);
+        }
+
+        /* Tap-to-view gradient hint */
+        .ad-tap-hint {
           position: absolute;
-          bottom: 8px;
-          left: 12px;
-          background: rgba(10, 10, 20, 0.72);
-          color: rgba(255, 255, 255, 0.95);
-          font-size: 0.65rem;
+          inset: 0;
+          background: linear-gradient(to top, rgba(8, 8, 18, 0.58) 0%, transparent 55%);
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          padding-bottom: 16px;
+          opacity: 0;
+          transition: opacity 0.22s ease;
+          pointer-events: none;
+        }
+        .ad-tap-hint span {
+          color: #fff;
+          font-size: 0.8rem;
           font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          padding: 3px 9px;
-          border-radius: var(--radius-sm);
-          backdrop-filter: blur(4px);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          letter-spacing: 0.03em;
+          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+        }
+        .ad-image-container.ad-clickable:hover .ad-tap-hint,
+        .ad-image-container.ad-clickable:focus-within .ad-tap-hint {
+          opacity: 1;
         }
 
-        .ad-body {
-          padding: 16px 18px 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .ad-header-row {
-          display: flex;
-          gap: 12px;
-          align-items: flex-start;
-        }
-        .ad-logo {
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 1.5px solid var(--border);
-          flex-shrink: 0;
-        }
-        .ad-logo-placeholder {
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          background: var(--primary-glow);
-          color: var(--primary);
+        /* ── Bottom bar (don't show again) ────────────── */
+        .ad-bottom-bar {
+          background: rgba(12, 12, 24, 0.97);
+          border-top: 1px solid rgba(255, 255, 255, 0.07);
+          padding: 10px 14px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 1.5px solid var(--border);
-          flex-shrink: 0;
         }
 
-        .ad-header-text {
-          flex: 1;
-          min-width: 0;
-        }
-        .ad-title {
-          font-size: 1rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .ad-desc {
-          font-size: 0.82rem;
-          color: var(--text-secondary);
-          line-height: 1.45;
-          margin-top: 3px;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .ad-footer {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .ad-checkbox-container {
+        .ad-dont-show-btn {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 7px;
           background: none;
           border: none;
           cursor: pointer;
-          padding: 0;
-          text-align: left;
+          padding: 2px 0;
         }
-        .ad-checkbox {
+        .ad-dont-show-btn:focus-visible {
+          outline: 2px solid #6c63ff;
+          border-radius: 4px;
+        }
+
+        .ad-check-box {
           width: 15px;
           height: 15px;
           border-radius: 3px;
-          border: 1.5px solid var(--border);
-          background: var(--bg-input);
+          border: 1.5px solid rgba(255, 255, 255, 0.28);
+          background: rgba(255, 255, 255, 0.06);
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: var(--transition);
+          transition: background 0.15s, border-color 0.15s;
           color: #fff;
           flex-shrink: 0;
         }
-        .ad-checkbox.checked {
-          background: var(--primary);
-          border-color: var(--primary);
+        .ad-check-box.checked {
+          background: #6c63ff;
+          border-color: #6c63ff;
         }
-        .ad-checkbox-label {
-          font-size: 0.74rem;
-          color: var(--text-muted);
+
+        .ad-dont-show-label {
+          font-size: 0.73rem;
+          color: rgba(255, 255, 255, 0.52);
           font-weight: 500;
+          user-select: none;
         }
 
-        .ad-cta-btn {
-          padding: 8px 18px !important;
-          font-size: 0.82rem !important;
-          border-radius: var(--radius-md) !important;
-          flex-shrink: 0;
-          box-shadow: 0 3px 10px var(--primary-glow) !important;
-        }
-
+        /* ── Animations ───────────────────────────────── */
         @keyframes adFadeIn {
           from { opacity: 0; }
-          to { opacity: 1; }
+          to   { opacity: 1; }
         }
         @keyframes adScaleIn {
-          from { transform: scale(0.90); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
+          from { transform: scale(0.86); opacity: 0; }
+          to   { transform: scale(1);    opacity: 1; }
         }
 
-        /* Small mobile (height < 600px) */
-        @media(max-height: 620px) {
-          .ad-overlay { align-items: flex-start; overflow-y: auto; padding-top: 12px; }
-          .ad-image-container { padding-bottom: 42%; }
-          .ad-body { padding: 12px 14px 10px; gap: 8px; }
+        /* ── Responsive ───────────────────────────────── */
+        @media (max-width: 400px) {
+          .ad-modal { width: 100%; border-radius: 14px; }
+          .ad-image-container { padding-bottom: 68%; }
         }
-        /* Very narrow screens */
-        @media(max-width: 360px) {
-          .ad-modal { width: 100%; border-radius: var(--radius-lg); }
+        @media (max-height: 600px) {
+          .ad-overlay { align-items: flex-start; overflow-y: auto; padding-top: 8px; }
+          .ad-image-container { padding-bottom: 48%; }
         }
       `}</style>
     </div>
