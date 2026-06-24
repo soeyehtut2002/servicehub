@@ -28,6 +28,8 @@ const rawClientUrl = process.env.CLIENT_URL;
 const cleanedClientUrl = rawClientUrl ? rawClientUrl.replace(/\/$/, '') : null;
 
 const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:5173',
   'http://localhost:5174',
   'https://servicehub0-2-frontend.onrender.com',
