@@ -140,7 +140,8 @@ const AdminDashboard = () => {
       setAdForm(prev => ({ ...prev, [field]: res.data.url }));
       toast.success('Uploaded successfully', { id: loadingToast });
     } catch (err) {
-      toast.error('Upload failed', { id: loadingToast });
+      const errMsg = err.response?.data?.error || 'Upload failed';
+      toast.error(errMsg, { id: loadingToast });
     }
   };
 
